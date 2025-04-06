@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Профиль пользователя: {{ user.username }}</h1>
+
+    <!-- Информация о пользователе -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 class="card-title">Основная информация</h3>
+            <p><strong>Имя:</strong> {{ user.username }}</p>
+            {% if current_user.role >= 2 or current_user.id == user.id %}
+                <p><strong>Почта:</strong> {{ user.email }}</p>
+            {% endif %}
+            <p><strong>Дата регистрации:</strong> {{ user.created_date.strftime('%Y-%m-%d %H:%M') }}</p>
+        </div>
+    </div>
+
+    <!-- Последние выполненные заказы -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 class="card-title">Последние выполненные заказы</h3>
+            {% if completed_jobs %}
+                <div class="row">
+                    {% for job in completed_jobs %}
+                        <div class="col-12 col-md-6 mb-3">
+                            <div class="card job-card border-primary h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title text-primary">{{ job.title }}</h5>
+                                    <p class="card-text">{{ job.description }}</p>
+                                    <p><strong>Цена:</strong> {{ job.price }} ₽</p>
+                                    <p><strong>Дата создания:</strong> {{ job.created_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                                    <p><strong>Автор:</strong> {{ job.author.username }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">Нет выполненных заказов.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Заготовка для отзывов -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 class="card-title">Отзывы</h3>
+            <p class="text-muted">Отзывы пока недоступны. Функционал будет добавлен позже.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

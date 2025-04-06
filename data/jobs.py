@@ -16,7 +16,7 @@ class Jobs(SqlAlchemyBase):
     status = sqlalchemy.Column(sqlalchemy.String, nullable=True, default="Открыт")
     contact = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     author_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'), nullable=True)
-    executor_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'), nullable=True)
+    executor_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'), nullable=True, default=None)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
 
     # Связь
