@@ -57,11 +57,11 @@
                         <!-- Кнопка отклика -->
                         {% if current_user.is_authenticated and current_user == item.author %}
                         <div class="mt-4">
-                            <a href="/view-responses/{{ item.id }}" class="btn btn-primary me-2">Посмотреть отклики</a>
+                            <a href="/view-responses/{{ item.id }}" class="btn btn-primary me-2 mr-2">Посмотреть отклики</a>
                         </div>
                         {% elif current_user.is_authenticated and item.status == "Открыт" %}
                         <div class="mt-4">
-                            <a href="/answer-jobs/{{ item.id }}" class="btn btn-primary me-2">Откликнуться</a>
+                            <a href="/answer-jobs/{{ item.id }}" class="btn btn-primary me-2 mr-2">Откликнуться</a>
                         </div>
                         {% endif %}
 

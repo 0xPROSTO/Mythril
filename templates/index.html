@@ -19,9 +19,10 @@
                     <!-- Описание -->
                     <p class="card-text job-description mb-1">{{ item.description }}</p>
 
-                    <!-- Статус для авторизованных пользователей (слева, под описанием) -->
+                    <!-- Статус для авторизованных пользователей (цена и статус в одной строке) -->
                     {% if current_user.is_authenticated %}
-                        <div class="text-left mb-2">
+                        <div class="d-flex align-items-center">
+                            <p class="card-text job-description mb-0 mr-2 fw-bold" style="font-size: 1.3rem;">{{ item.price }} ₽</p>
                             <span class="badge bg-light text-primary fw-semibold px-2 py-1">
                                 {% if item.status == "Открыт" %}
                                     🟢 Открыт
@@ -41,29 +42,33 @@
                         <!-- Левый нижний угол: статус (неавторизован) или кнопки (авторизован) -->
                         <div>
                             {% if not current_user.is_authenticated %}
-                                <span class="badge bg-light text-primary fw-semibold px-2 py-1">
-                                    {% if item.status == "Открыт" %}
-                                        🟢 Открыт
-                                    {% elif item.status == "В работе" %}
-                                        🟡 В работе
-                                    {% elif item.status == "Завершён" %}
-                                        🔴 Завершён
-                                    {% else %}
-                                        ⚪ Неизвестно
-                                    {% endif %}
-                                </span>
+                                <div class="d-flex align-items-center mb-1">
+                                    <p class="card-text job-description mb-0 mr-2 fw-bold" style="font-size: 1.25rem;">{{ item.price }} ₽</p>
+                                    <span class="badge bg-light text-primary fw-semibold px-2 py-1">
+                                        {% if item.status == "Открыт" %}
+                                            🟢 Открыт
+                                        {% elif item.status == "В работе" %}
+                                            🟡 В работе
+                                        {% elif item.status == "Завершён" %}
+                                            🔴 Завершён
+                                        {% else %}
+                                            ⚪ Неизвестно
+                                        {% endif %}
+                                    </span>
+                                </div>
                             {% elif current_user == item.author %}
                                 <div class="d-flex gap-2">
-                                    <a href="/jobs/{{ item.id }}" class="btn btn-outline-primary btn-sm">Посмотреть</a>
-                                    <a href="/edit-jobs/{{ item.id }}" class="btn btn-outline-warning btn-sm">Изменить</a>
-                                    <a href="/delete-jobs/{{ item.id }}" class="btn btn-outline-danger btn-sm">Удалить</a>
+                                    <a href="/jobs/{{ item.id }}" class="btn btn-outline-primary btn-sm mr-2">Посмотреть</a>
+                                    <a href="/view-responses/{{ item.id }}" class="btn btn-outline-info btn-sm mr-2">Посмотреть отклики</a>
+                                    <a href="/edit-jobs/{{ item.id }}" class="btn btn-outline-warning btn-sm mr-2">Изменить</a>
+                                    <a href="/delete-jobs/{{ item.id }}" class="btn btn-outline-danger btn-sm mr-2">Удалить</a>
                                 </div>
                             {% else %}
-                                 <div class="d-flex gap-2">
-                                    <a href="/jobs/{{ item.id }}" class="btn btn-outline-primary btn-sm">Посмотреть</a>
-                                     {% if item.status == "Открыт" %}
-                                        <a href="/answer-jobs/{{ item.id }}" class="btn btn-outline-info btn-sm">Откликнуться</a>
-                                     {% endif %}
+                                <div class="d-flex gap-2">
+                                    <a href="/jobs/{{ item.id }}" class="btn btn-outline-primary btn-sm mr-2">Посмотреть</a>
+                                    {% if item.status == "Открыт" %}
+                                        <a href="/answer-jobs/{{ item.id }}" class="btn btn-outline-info btn-sm mr-2">Откликнуться</a>
+                                    {% endif %}
                                 </div>
                             {% endif %}
                         </div>

@@ -1,0 +1,120 @@
+/* Светлая тема (по умолчанию) */
+body {
+    background-color: #ffffff;
+    color: #212529;
+}
+
+.navbar {
+    background-color: #f8f9fa !important; /* Светлый фон */
+}
+
+.card {
+    background-color: #ffffff;
+    border-color: #dee2e6;
+    color: #212529;
+}
+
+.navbar-brand-mythril {
+    color: rgb(0, 52, 64);
+    font-weight: bold;
+    font-size: 1.75rem;
+}
+
+.text-dark {
+    color: #000000 !important;
+}
+
+.btn-outline-danger {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.badge.bg-light {
+    background-color: #f8f9fa !important;
+    color: #212529;
+}
+
+.mythril-color {
+    rgb(0, 52, 64)
+}
+
+/* Тёмная тема */
+body.dark-theme {
+    background-color: #181a1b;
+    color: #f8f9fa;
+}
+
+body.dark-theme .navbar {
+    background-color: #1b1e1f !important; /* Тёмный фон для navbar */
+    color: #f8f9fa; /* Светлый текст */
+}
+
+body.dark-theme .card {
+    background-color: #1b1e1f;
+    border-color: #495057;
+    color: #f8f9fa;
+}
+
+body.dark-theme .navbar-brand-mythril {
+    color: rgb(0, 52, 64); /* Оставляем ваш цвет */
+}
+
+body.dark-theme .text-dark {
+    color: #000000 !important; /* Чёрный остаётся чёрным */
+}
+
+body.dark-theme .btn-outline-danger {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+body.dark-theme .btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+body.dark-theme .badge.bg-light {
+    background-color: #495057 !important;
+    color: #f8f9fa;
+}
+
+body.dark-theme a:not(.navbar-brand-mythril):not(.btn) {
+    color: #f8f9fa; /* Светлый цвет для обычных ссылок */
+}
+
+body.dark-theme a:not(.navbar-brand-mythril):not(.btn):hover {
+    color: #adb5bd; /* Более тусклый при наведении */
+}
+
+/* Стили для полей ввода в тёмной теме */
+body.dark-theme .form-control {
+    background-color: #343a40; /* Тёмный фон */
+    color: #f8f9fa; /* Светлый текст */
+    border-color: #495057; /* Тёмная граница */
+}
+
+body.dark-theme .form-control:focus {
+    background-color: #343a40; /* Тёмный фон при фокусе */
+    color: #f8f9fa; /* Светлый текст при фокусе */
+    border-color: #6c757d; /* Более светлая граница при фокусе */
+    box-shadow: 0 0 0 0.2rem rgba(108, 117, 125, 0.25); /* Тень в тёмных тонах */
+}
+
+body.dark-theme .input-group-text {
+    background-color: #495057; /* Тёмный фон для дополнений */
+    color: #f8f9fa; /* Светлый текст */
+    border-color: #495057; /* Тёмная граница */
+}
+
+main.container {
+    padding-top: 20px;
+}
+
+.mythril-color {
+    rgb(130, 208, 195)
+}

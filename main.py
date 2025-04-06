@@ -1,7 +1,7 @@
 import json
 import datetime
 
-from flask import Flask, render_template, redirect, request, abort, flash
+from flask import Flask, render_template, redirect, request, abort, flash, session, url_for
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
 from data import db_session
@@ -15,7 +15,7 @@ from forms.jobs_form import JobsForm, ResponseForm
 app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
-app.config['SECRET_KEY'] = 'ZeroXX-SecretKey-t1wo80esv5oo4kx25i7o85773er76ere'
+app.config['SECRET_KEY'] = 'ENTER_YOUR_SECRETKEY_HERE'
 
 
 def main():
@@ -261,6 +261,29 @@ def my_responses():
     session = db_session.create_session()
     responses = session.query(Responses).filter_by(user_id=current_user.id)
     return render_template("my_responses.html", responses=responses)
+
+@app.route('/delete-responses/<int:id>', methods=['GET', 'POST'])
+@login_required
+def responses_delete(id):
+    session = db_session.create_session()
+    response = session.query(Responses).filter(Responses.id == id, Responses.user == current_user).first()
+    if response:
+        session.delete(response)
+        session.commit()
+    else:
+        abort(404)
+    return redirect('/')
+
+
+@app.route('/toggle-theme')
+def toggle_theme():
+    # Переключаем тему в сессии
+    if session.get('theme') == 'dark':
+        session['theme'] = 'light'
+    else:
+        session['theme'] = 'dark'
+    # Возвращаемся на предыдущую страницу
+    return redirect(request.referrer or url_for('index'))
 
 
 if __name__ == '__main__':

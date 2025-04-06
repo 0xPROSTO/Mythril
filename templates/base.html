@@ -9,23 +9,34 @@
           crossorigin="anonymous">
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/darktheme.css') }}">
     <title>{{ title }}</title>
 </head>
-<body>
+<body class="{{ 'dark-theme' if session.get('theme') == 'dark' else '' }}">
 <header>
-    <nav class="navbar navbar-light bg-light">
-        <a class="navbar-brand" href="/">Mythril</a>
-        {% if current_user.is_authenticated %}
-            <p>
-                <a class="navbar-brand" href="/profile">{{ current_user.username }}</a>
-                <a class="navbar-brand" href="/logout">Выйти</a>
-            </p>
-        {% else %}
-            <p>
-                <a class="btn btn-primary " href="/register">Зарегистрироваться</a>
-                <a class="btn btn-success" href="/login">Войти</a>
-            </p>
-        {% endif %}
+    <nav class="navbar navbar-light bg-light py-2">
+        <div class="container-fluid">
+            <!-- Логотип и название -->
+            <div class="d-flex align-items-center">
+                <img src="{{ url_for('static', filename='images/Mythril-Logo.png') }}"
+                     style="height: 50px; width: auto;" alt="Logo">
+                <a class="navbar-brand ml-2 mythril-color" href="/" style="font-size: 1.75rem;">Mythril</a>
+            </div>
+
+            <!-- Пользовательские ссылки -->
+            <div class="d-flex align-items-center">
+                {% if current_user.is_authenticated %}
+                    <a class="nav-link mr-3" href="/profile" style="font-size: 1.5rem;">{{ current_user.username }}</a>
+                    <a class="nav-link btn btn-outline-secondary btn-sm mr-3" href="/toggle-theme">Тема</a>
+                    <a class="nav-link btn btn-outline-danger btn-sm mr-3" href="/logout">Выйти</a>
+                {% else %}
+                    <a class="btn btn-primary btn-sm mr-2" href="/register">Зарегистрироваться</a>
+                    <a class="btn btn-success btn-sm" href="/login">Войти</a>
+                {% endif %}
+            </div>
+        </div>
     </nav>
 </header>
 <!-- Begin page content -->
