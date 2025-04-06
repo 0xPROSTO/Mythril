@@ -1,0 +1,7 @@
+[
+    {"value": "web_development", "label": "Веб-разработка"},
+    {"value": "design", "label": "Дизайн"},
+    {"value": "writing", "label": "Написание текстов"},
+    {"value": "programming", "label": "Программирование"},
+    {"value": "other", "label": "Другое"}
+]

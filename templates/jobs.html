@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>{{ title }}</h1>
+    <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.title.label }}<br>
+            {{ form.title(class="form-control") }}<br>
+            {% for error in form.title.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.description.label }}<br>
+            {{ form.description(class="form-control") }}<br>
+            {% for error in form.description.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.category.label }}<br>
+            {{ form.category(class="form-control") }}<br>
+            {% for error in form.category.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.price.label }}<br>
+            <div class="input-group">
+                {{ form.price(class="form-control", id="price-input") }}
+                <div class="input-group-append">
+                    <span class="input-group-text">₽</span>
+                </div>
+            </div>
+            {% for error in form.price.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.contact.label }}<br>
+            {{ form.contact(class="form-control") }}<br>
+            {% for error in form.contact.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.status.label }}<br>
+            {{ form.status(class="form-control") }}<br>
+            {% for error in form.status.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.submit(type="submit", class="btn btn-primary") }}
+        </div>
+    </form>
+
+    <script>
+        // Ограничение ввода только цифр и одной точки
+        document.querySelector('input[name="price"]').addEventListener('input', function (e) {
+            let value = e.target.value;
+            // Разрешаем только цифры и одну точку
+            e.target.value = value.replace(/[^0-9.]/g, '')  // Удаляем всё, кроме цифр и точки
+                .replace(/\.(?=.*\.)/g, '');  // Удаляем лишние точки
+        });
+    </script>
+{% endblock %}

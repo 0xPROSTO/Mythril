@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Отклик на работу: {{ job.title }}</h1>
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-11">
+            <div class="card border-primary shadow-sm h-100">
+                <div class="card-body p-4">
+                    <!-- Краткая информация о работе -->
+                    <div class="mb-4">
+                        <h5 class="text-primary">Описание</h5>
+                        <p class="card-text job-description">{{ job.description }}</p>
+                    </div>
+                    <div class="mb-4">
+                        <h5 class="text-primary">Рекомендованная цена</h5>
+                        <p class="card-text">{{ job.price }} ₽</p>
+                    </div>
+
+                    <!-- Форма отклика -->
+                    <h3 class="text-primary mb-3">Ваш отклик</h3>
+                    <form action="" method="post" novalidate>
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            <label for="comment" class="form-label text-primary">Комментарий</label>
+                            {{ form.comment(class="form-control", id="comment") }}
+                            {% for error in form.comment.errors %}
+                                <div class="alert alert-danger mt-2" role="alert">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="price" class="form-label text-primary">Предлагаемая цена (руб.)</label>
+                            <div class="input-group">
+                                {{ form.price(class="form-control", id="price") }}
+                                <span class="input-group-text">₽</span>
+                            </div>
+                            {% for error in form.price.errors %}
+                                <div class="alert alert-danger mt-2" role="alert">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="mt-4">
+                            {{ form.submit(class="btn btn-primary") }}
+                            <a href="/jobs/{{ job.id }}" class="btn btn-secondary ms-2">Назад</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script>
+        // Ограничение ввода только цифр и одной точки
+        document.querySelector('input[name="price"]').addEventListener('input', function (e) {
+            let value = e.target.value;
+            // Разрешаем только цифры и одну точку
+            e.target.value = value.replace(/[^0-9.]/g, '')  // Удаляем всё, кроме цифр и точки
+                .replace(/\.(?=.*\.)/g, '');  // Удаляем лишние точки
+        });
+    </script>
+
+{% endblock %}

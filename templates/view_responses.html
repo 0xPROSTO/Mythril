@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Отклики на работу: {{ job.title }}</h1>
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-11">
+            <div class="card border-primary shadow-sm h-100">
+                <div class="card-body p-4">
+                    {% if responses %}
+                        <h3 class="text-primary mb-3">Список откликов</h3>
+                        {% for response in responses %}
+                            <div class="card mb-3 response-card">
+                                <div class="card-body">
+                                    <p><strong>Пользователь:</strong> {{ response.user.username }}</p>
+                                    <p><strong>Комментарий:</strong> {{ response.comment }}</p>
+                                    <p><strong>Предлагаемая цена:</strong> {{ response.price }} ₽</p>
+                                    <p><strong>Дата отклика:</strong> {{ response.created_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                                    {% if job.executor_id is none and current_user.id == job.author_id %}
+                                        <form action="/select-response/{{ job.id }}/{{ response.id }}" method="post">
+                                            <button type="submit" class="btn btn-success btn-sm">Выбрать исполнителя</button>
+                                        </form>
+                                    {% elif job.executor_id == response.user_id %}
+                                        <span class="badge bg-success">Выбран</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">На эту работу пока нет откликов.</p>
+                    {% endif %}
+                    <div class="mt-4">
+                        <a href="/jobs/{{ job.id }}" class="btn btn-secondary">Назад к работе</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

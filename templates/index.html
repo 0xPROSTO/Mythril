@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4">{{ title }}</h1>
+
+{% if current_user.is_authenticated %}
+    <a href="/add-jobs" class="btn btn-secondary mb-3">Добавить работу</a>
+    <a href="/my-jobs" class="btn btn-primary mb-3">Мои работы</a>
+    <a href="/my-responses" class="btn btn-info mb-3">Мои отклики</a>
+{% endif %}
+
+<div class="row justify-content-center">
+    {% for item in jobs %}
+        <div class="col-12 col-lg-11 mb-4">
+            <div class="card job-card border-primary h-100 position-relative p-0">
+                <div class="card-body d-flex flex-column justify-content-between p-4">
+                    <!-- Заголовок -->
+                    <h2 class="card-title job-title text-primary mb-2" style="margin-top: -10px;">{{ item.title }}</h2>
+                    <!-- Описание -->
+                    <p class="card-text job-description mb-1">{{ item.description }}</p>
+
+                    <!-- Статус для авторизованных пользователей (слева, под описанием) -->
+                    {% if current_user.is_authenticated %}
+                        <div class="text-left mb-2">
+                            <span class="badge bg-light text-primary fw-semibold px-2 py-1">
+                                {% if item.status == "Открыт" %}
+                                    🟢 Открыт
+                                {% elif item.status == "В работе" %}
+                                    🟡 В работе
+                                {% elif item.status == "Завершён" %}
+                                    🔴 Завершён
+                                {% else %}
+                                    ⚪ Неизвестно
+                                {% endif %}
+                            </span>
+                        </div>
+                    {% endif %}
+
+                    <!-- Нижняя часть: статус/кнопки и автор/дата -->
+                    <div class="d-flex justify-content-between align-items-end mt-2">
+                        <!-- Левый нижний угол: статус (неавторизован) или кнопки (авторизован) -->
+                        <div>
+                            {% if not current_user.is_authenticated %}
+                                <span class="badge bg-light text-primary fw-semibold px-2 py-1">
+                                    {% if item.status == "Открыт" %}
+                                        🟢 Открыт
+                                    {% elif item.status == "В работе" %}
+                                        🟡 В работе
+                                    {% elif item.status == "Завершён" %}
+                                        🔴 Завершён
+                                    {% else %}
+                                        ⚪ Неизвестно
+                                    {% endif %}
+                                </span>
+                            {% elif current_user == item.author %}
+                                <div class="d-flex gap-2">
+                                    <a href="/jobs/{{ item.id }}" class="btn btn-outline-primary btn-sm">Посмотреть</a>
+                                    <a href="/edit-jobs/{{ item.id }}" class="btn btn-outline-warning btn-sm">Изменить</a>
+                                    <a href="/delete-jobs/{{ item.id }}" class="btn btn-outline-danger btn-sm">Удалить</a>
+                                </div>
+                            {% else %}
+                                 <div class="d-flex gap-2">
+                                    <a href="/jobs/{{ item.id }}" class="btn btn-outline-primary btn-sm">Посмотреть</a>
+                                     {% if item.status == "Открыт" %}
+                                        <a href="/answer-jobs/{{ item.id }}" class="btn btn-outline-info btn-sm">Откликнуться</a>
+                                     {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Правый нижний угол: автор и дата -->
+                        <div class="text-end text-muted small ms-auto">
+                            Автор: {{ item.author.username }}<br>
+                            {{ item.created_date.strftime('%Y-%m-%d %H:%M') }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">{{ item.title }}</h1>
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-11">
+            <div class="card border-primary shadow-sm h-100">
+                <div class="card-body p-4">
+                    <!-- Описание -->
+                    <div class="mb-4">
+                        <h5 class="text-primary">Описание</h5>
+                        <p class="card-text job-description">{{ item.description }}</p>
+                    </div>
+
+                    <!-- Категория -->
+                    <div class="mb-4">
+                        <h5 class="text-primary">Категория</h5>
+                        <p class="card-text">{{ categories[item.category] }}</p>
+                    </div>
+
+                    <!-- Стоимость -->
+                    <div class="mb-4">
+                        <h5 class="text-primary">Рекомендуемая стоимость</h5>
+                        <p class="card-text">{{ item.price }} ₽</p>
+                    </div>
+
+                    <!-- Статус -->
+                    <div class="mb-4">
+                        <h5 class="text-primary">Статус</h5>
+                        <span class="badge bg-light text-primary fw-semibold px-2 py-1">
+                            {% if item.status == "Открыт" %}
+                                🟢 Открыт
+                            {% elif item.status == "В работе" %}
+                                🟡 В работе
+                            {% elif item.status == "Завершён" %}
+                                🔴 Завершён
+                            {% else %}
+                                ⚪ Неизвестно
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <!-- Дата создания -->
+                    <div class="mb-4">
+                        <h5 class="text-primary">Дата создания</h5>
+                        <p class="card-text">{{ item.created_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                    </div>
+
+                    <!-- Автор -->
+                    <div class="mb-4">
+                        <h5 class="text-primary">Автор</h5>
+                        <p class="card-text">{{ item.author.username }}</p>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <!-- Кнопка отклика -->
+                        {% if current_user.is_authenticated and current_user == item.author %}
+                        <div class="mt-4">
+                            <a href="/view-responses/{{ item.id }}" class="btn btn-primary me-2">Посмотреть отклики</a>
+                        </div>
+                        {% elif current_user.is_authenticated and item.status == "Открыт" %}
+                        <div class="mt-4">
+                            <a href="/answer-jobs/{{ item.id }}" class="btn btn-primary me-2">Откликнуться</a>
+                        </div>
+                        {% endif %}
+
+                        <!-- Кнопка возврата -->
+                        <div class="mt-4">
+                            <a href="/" class="btn btn-secondary">Назад к списку</a>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

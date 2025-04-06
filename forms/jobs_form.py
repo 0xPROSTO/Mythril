@@ -1,0 +1,77 @@
+import json
+from flask_wtf import FlaskForm
+from wtforms import StringField, TextAreaField, FloatField, SubmitField, SelectField
+from wtforms.validators import DataRequired, NumberRange, ValidationError, Length
+
+
+def validate_price_format(form, field):
+    value = str(field.data)
+    if len(value[value.find('.') + 1:]) > 2:
+        raise ValidationError("После точки допускается только 2 цифры")
+
+def load_categories(file_path='categories.json'):
+    with open(file_path, 'r', encoding='utf-8') as f:
+        categories = json.load(f)
+    return [(category['value'], category['label']) for category in categories]
+
+
+class JobsForm(FlaskForm):
+    title = StringField('Название работы', validators=[DataRequired()])
+    description = TextAreaField("Описание работы", validators=[DataRequired()])
+    category = SelectField(
+        'Категория',
+        choices=[
+            ('web_development', 'Веб-разработка'),
+            ('design', 'Дизайн'),
+            ('writing', 'Написание текстов'),
+            ('programming', 'Программирование'),
+            ('other', 'Другое')
+        ],
+        validators=[DataRequired()]
+    )
+    price = FloatField(
+        'Рекомендуемая цена (руб.)',
+        validators=[
+            DataRequired(),
+            NumberRange(min=0.0, message="Цена не может быть отрицательной"),
+            validate_price_format
+        ],
+        render_kw={
+            'step': '0.01',
+            'inputmode': 'decimal',
+            'placeholder': '0.00'
+        }
+    )
+    contact = StringField("Как с вами связаться", validators=[DataRequired()])
+    status = SelectField(
+        label="Статус",
+        choices=[
+            ('Открыт', 'Открыт'),
+            ('В работе', 'В работе'),
+            ('Завершён', 'Завершён')
+        ],
+        validators=[DataRequired()],
+        default="Открыт"
+    )
+    submit = SubmitField('Применить')
+
+class ResponseForm(FlaskForm):
+    comment = TextAreaField(
+        'Комментарий',
+        validators=[DataRequired(), Length(max=512, message="Комментарий не должен превышать 512 символов")],
+        render_kw={'rows': 5}
+    )
+    price = FloatField(
+        'Рекомендуемая цена (руб.)',
+        validators=[
+            DataRequired(),
+            NumberRange(min=0.0, message="Цена не может быть отрицательной"),
+            validate_price_format
+        ],
+        render_kw={
+            'step': '0.01',
+            'inputmode': 'decimal',
+            'placeholder': '0.00'
+        }
+    )
+    submit = SubmitField('Отправить отклик')
