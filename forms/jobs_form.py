@@ -9,6 +9,7 @@ def validate_price_format(form, field):
     if len(value[value.find('.') + 1:]) > 2:
         raise ValidationError("После точки допускается только 2 цифры")
 
+
 def load_categories(file_path='./data/categories.json'):
     with open(file_path, 'r', encoding='utf-8') as f:
         categories = json.load(f)
@@ -16,19 +17,20 @@ def load_categories(file_path='./data/categories.json'):
 
 
 class JobsForm(FlaskForm):
-    title = StringField('Название работы', validators=[DataRequired()])
-    description = TextAreaField("Описание работы", validators=[DataRequired()])
+    title = StringField('Название работы', validators=[DataRequired(),
+                         Length(max=100, message="Название не должно превышать 100 символов")])
+    description = TextAreaField("Описание работы", validators=[DataRequired(),
+                         Length(max=2000, message="Описание не должно превышать 2000 символов")])
     categories = load_categories()
     category = SelectField(
         'Категория',
-        choices=categories,
-        validators=[DataRequired()]
-    )
+        choices=categories, validators=[DataRequired()])
     price = FloatField(
         'Рекомендуемая цена (руб.)',
         validators=[
             DataRequired(),
-            NumberRange(min=0.0, message="Цена не может быть отрицательной"),
+            NumberRange(min=0.0, message="Цена не может быть отрицательной, или она слишком большая",
+                        max=1_000_000_000_000),
             validate_price_format
         ],
         render_kw={
@@ -37,7 +39,8 @@ class JobsForm(FlaskForm):
             'placeholder': '0.00'
         }
     )
-    contact = StringField("Как с вами связаться", validators=[DataRequired()])
+    contact = StringField("Как с вами связаться",
+                          validators=[DataRequired(), Length(max=255, message="Контактная информация слишком длинная")])
     status = SelectField(
         label="Статус",
         choices=[
@@ -50,6 +53,7 @@ class JobsForm(FlaskForm):
     )
     submit = SubmitField('Применить')
 
+
 class ResponseForm(FlaskForm):
     comment = TextAreaField(
         'Комментарий',
@@ -60,7 +64,8 @@ class ResponseForm(FlaskForm):
         'Рекомендуемая цена (руб.)',
         validators=[
             DataRequired(),
-            NumberRange(min=0.0, message="Цена не может быть отрицательной"),
+            NumberRange(min=0.0, message="Цена не может быть отрицательной, или она слишком большая",
+                        max=1_000_000_000_000),
             validate_price_format
         ],
         render_kw={

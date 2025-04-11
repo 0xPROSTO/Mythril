@@ -39,7 +39,7 @@ def index():
     for job in jobs:
         job.response_count = session.query(Responses).filter(Responses.job_id == job.id).count()
 
-    title="Доступные работы"
+    title = "Доступные работы"
     return render_template("index.html", jobs=jobs, title=title)
 
 
@@ -194,7 +194,6 @@ def answer_jobs(job_id):
         flash('Вы уже откликнулись на это объявление.', 'danger')
         return redirect(f'/my-responses')
 
-
     form = ResponseForm(price=job.price)
     categories = load_categories()
 
@@ -212,6 +211,7 @@ def answer_jobs(job_id):
 
     return render_template('answer_jobs.html', job=job, form=form, categories=categories)
 
+
 @app.route('/view-responses/<int:job_id>')
 @login_required
 def view_responses(job_id):
@@ -225,6 +225,7 @@ def view_responses(job_id):
 
     responses = session.query(Responses).filter(Responses.job_id == job_id).all()
     return render_template('view_responses.html', job=job, responses=responses)
+
 
 @app.route('/select-response/<int:job_id>/<int:response_id>', methods=['POST'])
 @login_required
@@ -251,13 +252,19 @@ def select_response(job_id, response_id):
 
     return redirect(f'/view-responses/{job_id}')
 
+
 @app.route('/my-jobs')
 @login_required
 def my_jobs():
     session = db_session.create_session()
-    jobs = session.query(Jobs).filter_by(author_id=current_user.id)
+    jobs = session.query(Jobs).filter_by(author_id=current_user.id).all()
+
+    for job in jobs:
+        job.response_count = session.query(Responses).filter(Responses.job_id == job.id).count()
+
     title = "Мои работы"
     return render_template("index.html", jobs=jobs, title=title)
+
 
 @app.route('/my-responses')
 @login_required
@@ -265,6 +272,7 @@ def my_responses():
     session = db_session.create_session()
     responses = session.query(Responses).filter_by(user_id=current_user.id)
     return render_template("my_responses.html", responses=responses)
+
 
 @app.route('/delete-responses/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -283,6 +291,7 @@ def responses_delete(id):
 
 
 @app.route('/profile/<int:user_id>')
+@login_required
 def profile(user_id):
     session = db_session.create_session()
     user = session.query(User).get(user_id)

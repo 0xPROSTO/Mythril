@@ -85,7 +85,11 @@
 
                         <!-- Правый нижний угол: автор и дата -->
                         <div class="text-end text-muted small ms-auto" style="text-align: right;">
-                            <a href="/profile/{{ item.author_id }}">Автор: {{ item.author.username }}</a><br>
+                            {% if not current_user.is_authenticated %}
+                                Автор: {{ item.author.username }}<br>
+                            {% else %}
+                                <a href="/profile/{{ item.author_id }}">Автор: {{ item.author.username }}</a><br>
+                            {% endif %}
                             {{ item.created_date.strftime('%Y-%m-%d %H:%M') }}
                         </div>
                     </div>
