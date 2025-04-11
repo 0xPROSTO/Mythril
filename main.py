@@ -252,6 +252,28 @@ def select_response(job_id, response_id):
 
     return redirect(f'/view-responses/{job_id}')
 
+@app.route('/cancel-response/<int:job_id>/<int:response_id>', methods=['POST'])
+@login_required
+def cancel_response(job_id, response_id):
+    session = db_session.create_session()
+    job = session.query(Jobs).get(job_id)
+    response = session.query(Responses).get(response_id)
+
+    if not job or not response:
+        abort(404)
+    if job.author_id != current_user.id:
+        flash('Вы не можете выбрать исполнителя для этой работы.', 'danger')
+        return redirect(f'/view-responses/{job_id}')
+    if job.executor_id is None:
+        flash('Исполнитель ещё не выбран.', 'danger')
+        return redirect(f'/view-responses/{job_id}')
+
+    job.executor_id = None
+    job.status = "Открыт"
+    session.commit()
+
+    return redirect(f'/view-responses/{job_id}')
+
 
 @app.route('/my-jobs')
 @login_required
@@ -280,14 +302,18 @@ def responses_delete(id):
     session = db_session.create_session()
     response = session.query(Responses).filter(Responses.id == id, Responses.user == current_user).first()
     if response:
-        if response.job.executor_id == current_user.id:
-            response.job.status = "Открыт"
-            response.job.executor_id = None
-        session.delete(response)
-        session.commit()
+        if response.job:
+            if response.job.executor_id == current_user.id:
+                response.job.status = "Открыт"
+                response.job.executor_id = None
+            session.delete(response)
+            session.commit()
+        else:
+            session.delete(response)
+            session.commit()
     else:
         abort(404)
-    return redirect('/')
+    return redirect('/my-responses')
 
 
 @app.route('/profile/<int:user_id>')

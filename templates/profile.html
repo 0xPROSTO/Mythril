@@ -17,6 +17,15 @@
                 <p><strong>Почта:</strong> {{ user.email }}</p>
             {% endif %}
             <p><strong>Дата регистрации:</strong> {{ user.created_date.strftime('%Y-%m-%d %H:%M') }}</p>
+            <p><strong>Роль:</strong>
+                {% if user.role == 3 %}
+                Администратор
+                {% elif user.role == 2 %}
+                Модератор
+                {% else %}
+                Пользователь
+                {% endif %}
+            </p>
         </div>
     </div>
 
@@ -30,7 +39,7 @@
                         <div class="col-12 col-md-6 mb-3">
                             <div class="card job-card border-primary h-100">
                                 <div class="card-body">
-                                    <h5 class="card-title text-primary">{{ job.title }}</h5>
+                                    <h5 class="card-title"><a href="/jobs/{{ job.id }}" class="text-primary">{{ job.title }}</a></h5>
                                     <p class="card-text">{{ job.description }}</p>
                                     <p><strong>Цена:</strong> {{ job.price }} ₽</p>
                                     <p><strong>Дата создания:</strong> {{ job.created_date.strftime('%Y-%m-%d %H:%M') }}</p>

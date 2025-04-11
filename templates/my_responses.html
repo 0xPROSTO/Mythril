@@ -12,7 +12,11 @@
                         {% for response in responses %}
                             <div class="card mb-3 response-card">
                                 <div class="card-body">
-                                    <p><strong>Работа:</strong> <a href="/jobs/{{ response.job_id }}">{{ response.job.title }}</a></p>
+                                    {% if response.job %}
+                                        <p><strong>Работа:</strong> <a href="/jobs/{{ response.job_id }}">{{ response.job.title }}</a></p>
+                                    {% else %}
+                                        <p class="text-danger" style="font-size: 1.2rem"><strong>Работа была удалена</strong></p>
+                                    {% endif %}
                                     <p><strong>Комментарий:</strong> {{ response.comment }}</p>
                                     <p><strong>Предлагаемая цена:</strong> {{ response.price }} ₽</p>
                                     <p><strong>Дата отклика:</strong> {{ response.created_date.strftime('%Y-%m-%d %H:%M') }}</p>
@@ -20,8 +24,10 @@
                                         <strong>Состояние:</strong>
                                         {% if response.job.executor_id == current_user.id %}
                                         Принят <p><strong>Связь:</strong> {{ response.job.contact }}</p>
-                                        {% else %}
+                                        {% elif response.job %}
                                         Без ответа
+                                        {% else %}
+                                        Неизвестно
                                         {% endif %}
                                     </p>
                                 <a href="/delete-responses/{{ response.id }}" class="btn btn-outline-danger btn-sm mr-2">Удалить</a>
