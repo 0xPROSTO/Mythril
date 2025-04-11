@@ -12,6 +12,8 @@ from data.reviews import Reviews
 from forms.user_form import RegisterForm, LoginForm
 from forms.jobs_form import JobsForm, ResponseForm
 
+from sqlalchemy import func
+
 app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -34,13 +36,22 @@ def load_categories(file_path='data/categories.json'):
 @app.route("/")
 def index():
     session = db_session.create_session()
-    jobs = session.query(Jobs).all()
+    try:
+        jobs = session.query(Jobs).all()
 
-    for job in jobs:
-        job.response_count = session.query(Responses).filter(Responses.job_id == job.id).count()
+        # for job in jobs:
+        #     job.response_count = session.query(Responses).filter(Responses.job_id == job.id).count()
 
-    title = "Доступные работы"
-    return render_template("index.html", jobs=jobs, title=title)
+        response_counts = dict(
+            session.query(Responses.job_id, func.count(Responses.id).label('response_count')).group_by(
+                Responses.job_id).all())
+        for job in jobs:
+            job.response_count = response_counts.get(job.id, 0)
+
+        title = "Доступные работы"
+        return render_template("index.html", jobs=jobs, title=title)
+    finally:
+        session.close()
 
 
 @login_manager.user_loader
@@ -62,7 +73,7 @@ def logout():
 
 
 @app.route('/register', methods=['GET', 'POST'])
-def reqister():
+def register():
     form = RegisterForm()
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
@@ -87,12 +98,15 @@ def reqister():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        db_sess = db_session.create_session()
-        user = db_sess.query(User).filter(User.email == form.email.data).first()
-        if user and user.check_password(form.password.data):
-            login_user(user, remember=form.remember_me.data)
-            return redirect("/")
-        return render_template('login.html', message="Неправильный логин или пароль", form=form)
+        session = db_session.create_session()
+        try:
+            user = session.query(User).filter(User.email == form.email.data).first()
+            if user and user.check_password(form.password.data):
+                login_user(user, remember=form.remember_me.data)
+                return redirect("/")
+            return render_template('login.html', message="Неправильный логин или пароль", form=form)
+        finally:
+            session.close()
     return render_template('login.html', title='Авторизация', form=form)
 
 
@@ -120,218 +134,255 @@ def add_jobs():
 @app.route('/delete-jobs/<int:id>', methods=['GET', 'POST'])
 @login_required
 def jobs_delete(id):
-    db_sess = db_session.create_session()
-    jobs = db_sess.query(Jobs).filter(Jobs.id == id).first()
-    if not jobs:
-        abort(404)
-    if jobs.author_id != current_user.id and current_user.role < 2:
-        flash('У вас нет прав для редактирования этого задания.', 'danger')
+    session = db_session.create_session()
+    try:
+        jobs = session.query(Jobs).filter(Jobs.id == id).first()
+        if not jobs:
+            abort(404)
+        if jobs.author_id != current_user.id and current_user.role < 2:
+            flash('У вас нет прав для редактирования этого задания.', 'danger')
+            return redirect('/')
+        else:
+            session.delete(jobs)
+            session.commit()
         return redirect('/')
-    else:
-        db_sess.delete(jobs)
-        db_sess.commit()
-    return redirect('/')
+    finally:
+        session.close()
 
 
 @app.route('/edit-jobs/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_jobs(id):
     form = JobsForm()
-    db_sess = db_session.create_session()
-    jobs = db_sess.query(Jobs).filter(Jobs.id == id).first()
-    if not jobs:
-        abort(404)
-    if jobs.author_id != current_user.id and current_user.role < 2:
-        flash('У вас нет прав для редактирования этого задания.', 'danger')
-        return redirect('/')
+    session = db_session.create_session()
+    try:
+        jobs = session.query(Jobs).filter(Jobs.id == id).first()
+        if not jobs:
+            abort(404)
+        if jobs.author_id != current_user.id and current_user.role < 2:
+            flash('У вас нет прав для редактирования этого задания.', 'danger')
+            return redirect('/')
 
-    if request.method == "GET":
-        form.title.data = jobs.title
-        form.description.data = jobs.description
-        form.category.data = jobs.category
-        form.price.data = jobs.price
-        form.contact.data = jobs.contact
-        form.status.data = jobs.status
-    if form.validate_on_submit():
-        jobs.title = form.title.data
-        jobs.description = form.description.data
-        jobs.category = form.category.data
-        jobs.price = form.price.data
-        jobs.contact = form.contact.data
-        jobs.status = form.status.data
-        db_sess.commit()
-        return redirect('/')
-    return render_template('jobs.html', title='Редактирование работы', form=form)
+        if request.method == "GET":
+            form.title.data = jobs.title
+            form.description.data = jobs.description
+            form.category.data = jobs.category
+            form.price.data = jobs.price
+            form.contact.data = jobs.contact
+            form.status.data = jobs.status
+        if form.validate_on_submit():
+            jobs.title = form.title.data
+            jobs.description = form.description.data
+            jobs.category = form.category.data
+            jobs.price = form.price.data
+            jobs.contact = form.contact.data
+            jobs.status = form.status.data
+            session.commit()
+            session.close()
+            return redirect('/')
+        return render_template('jobs.html', title='Редактирование работы', form=form)
+    finally:
+        session.close()
 
 
 @app.route('/jobs/<int:id>', methods=['GET', 'POST'])
 @login_required
 def jobs_view(id):
-    db_sess = db_session.create_session()
-    item = db_sess.query(Jobs).filter(Jobs.id == id).first()
-    if not item:
-        abort(404)
-    categories = load_categories()
-
-    return render_template('view_jobs.html', title='Просмотр работы',
+    session = db_session.create_session()
+    try:
+        item = session.query(Jobs).filter(Jobs.id == id).first()
+        if not item:
+            abort(404)
+        categories = load_categories()
+        return render_template('view_jobs.html', title='Просмотр работы',
                            item=item, categories=categories)
+    finally:
+        session.close()
 
 
 @app.route('/answer-jobs/<int:job_id>', methods=['GET', 'POST'])
 @login_required
 def answer_jobs(job_id):
     session = db_session.create_session()
-    job = session.query(Jobs).get(job_id)
-    if not job:
-        abort(404)
-    if job.author_id == current_user.id:
-        flash('Вы не можете откликнуться на свою работу.', 'danger')
-        return redirect(f'/jobs/{job_id}')
-    if job.status != "Открыт":
-        flash('На эту работу нельзя откликнуться, она уже в работе или завершена.', 'danger')
-        return redirect(f'/jobs/{job_id}')
-    if session.query(Responses).filter_by(job_id=job_id, user_id=current_user.id).first():
-        flash('Вы уже откликнулись на это объявление.', 'danger')
-        return redirect(f'/my-responses')
+    try:
+        job = session.query(Jobs).get(job_id)
+        if not job:
+            abort(404)
+        if job.author_id == current_user.id:
+            flash('Вы не можете откликнуться на свою работу.', 'danger')
+            return redirect(f'/jobs/{job_id}')
+        if job.status != "Открыт":
+            flash('На эту работу нельзя откликнуться, она уже в работе или завершена.', 'danger')
+            return redirect(f'/jobs/{job_id}')
+        if session.query(Responses).filter_by(job_id=job_id, user_id=current_user.id).first():
+            flash('Вы уже откликнулись на это объявление.', 'danger')
+            return redirect(f'/my-responses')
 
-    form = ResponseForm(price=job.price)
-    categories = load_categories()
+        form = ResponseForm(price=job.price)
+        categories = load_categories()
 
-    if form.validate_on_submit():
-        response = Responses(
-            job_id=job_id,
-            user_id=current_user.id,
-            comment=form.comment.data,
-            price=form.price.data
-        )
-        session.add(response)
-        session.commit()
-        flash('Ваш отклик успешно отправлен!', 'success')
-        return redirect(f'/jobs/{job_id}')
+        if form.validate_on_submit():
+            response = Responses(
+                job_id=job_id,
+                user_id=current_user.id,
+                comment=form.comment.data,
+                price=form.price.data
+            )
+            session.add(response)
+            session.commit()
 
-    return render_template('answer_jobs.html', job=job, form=form, categories=categories)
+            flash('Ваш отклик успешно отправлен!', 'success')
+            return redirect(f'/jobs/{job_id}')
+
+        return render_template('answer_jobs.html', job=job, form=form, categories=categories)
+    finally:
+        session.close()
 
 
 @app.route('/view-responses/<int:job_id>')
 @login_required
 def view_responses(job_id):
     session = db_session.create_session()
-    job = session.query(Jobs).get(job_id)
-    if not job:
-        abort(404)
-    if job.author_id != current_user.id and current_user.role < 2:
-        flash('Вы не можете просматривать отклики на эту работу.', 'danger')
-        return redirect(f'/jobs/{job_id}')
+    try:
+        job = session.query(Jobs).get(job_id)
+        if not job:
+            abort(404)
+        if job.author_id != current_user.id and current_user.role < 2:
+            flash('Вы не можете просматривать отклики на эту работу.', 'danger')
+            return redirect(f'/jobs/{job_id}')
 
-    responses = session.query(Responses).filter(Responses.job_id == job_id).all()
-    return render_template('view_responses.html', job=job, responses=responses)
+        responses = session.query(Responses).filter(Responses.job_id == job_id).all()
+        return render_template('view_responses.html', job=job, responses=responses)
+    finally:
+        session.close()
 
 
 @app.route('/select-response/<int:job_id>/<int:response_id>', methods=['POST'])
 @login_required
 def select_response(job_id, response_id):
     session = db_session.create_session()
-    job = session.query(Jobs).get(job_id)
-    response = session.query(Responses).get(response_id)
+    try:
+        job = session.query(Jobs).get(job_id)
+        response = session.query(Responses).get(response_id)
 
-    if not job or not response:
-        abort(404)
-    if job.author_id != current_user.id:
-        flash('Вы не можете выбрать исполнителя для этой работы.', 'danger')
-        return redirect(f'/view-responses/{job_id}')
-    if job.executor_id is not None:
-        flash('Исполнитель уже выбран.', 'danger')
-        return redirect(f'/view-responses/{job_id}')
-    if job.status != "Открыт":
-        flash('Работа уже в работе или завершена.', 'danger')
-        return redirect(f'/view-responses/{job_id}')
+        if not job or not response:
+            abort(404)
+        if job.author_id != current_user.id:
+            flash('Вы не можете выбрать исполнителя для этой работы.', 'danger')
+            return redirect(f'/view-responses/{job_id}')
+        if job.executor_id is not None:
+            flash('Исполнитель уже выбран.', 'danger')
+            return redirect(f'/view-responses/{job_id}')
+        if job.status != "Открыт":
+            flash('Работа уже в работе или завершена.', 'danger')
+            return redirect(f'/view-responses/{job_id}')
 
-    job.executor_id = response.user_id
-    job.status = "В работе"
-    session.commit()
+        job.executor_id = response.user_id
+        job.status = "В работе"
+        session.commit()
+        return redirect(f'/view-responses/{job_id}')
+    finally:
+        session.close()
 
-    return redirect(f'/view-responses/{job_id}')
 
 @app.route('/cancel-response/<int:job_id>/<int:response_id>', methods=['POST'])
 @login_required
 def cancel_response(job_id, response_id):
     session = db_session.create_session()
-    job = session.query(Jobs).get(job_id)
-    response = session.query(Responses).get(response_id)
+    try:
+        job = session.query(Jobs).get(job_id)
+        response = session.query(Responses).get(response_id)
 
-    if not job or not response:
-        abort(404)
-    if job.author_id != current_user.id:
-        flash('Вы не можете выбрать исполнителя для этой работы.', 'danger')
+        if not job or not response:
+            abort(404)
+        if job.author_id != current_user.id:
+            flash('Вы не можете выбрать исполнителя для этой работы.', 'danger')
+            return redirect(f'/view-responses/{job_id}')
+        if job.executor_id is None:
+            flash('Исполнитель ещё не выбран.', 'danger')
+            return redirect(f'/view-responses/{job_id}')
+
+        job.executor_id = None
+        job.status = "Открыт"
+        session.commit()
+
         return redirect(f'/view-responses/{job_id}')
-    if job.executor_id is None:
-        flash('Исполнитель ещё не выбран.', 'danger')
-        return redirect(f'/view-responses/{job_id}')
-
-    job.executor_id = None
-    job.status = "Открыт"
-    session.commit()
-
-    return redirect(f'/view-responses/{job_id}')
+    finally:
+        session.close()
 
 
 @app.route('/my-jobs')
 @login_required
 def my_jobs():
     session = db_session.create_session()
-    jobs = session.query(Jobs).filter_by(author_id=current_user.id).all()
+    try:
+        jobs = session.query(Jobs).filter(Jobs.author_id == current_user.id).all()
 
-    for job in jobs:
-        job.response_count = session.query(Responses).filter(Responses.job_id == job.id).count()
+        response_counts = dict(
+            session.query(Responses.job_id, func.count(Responses.id).label('response_count')).group_by(
+                Responses.job_id).all())
+        for job in jobs:
+            job.response_count = response_counts.get(job.id, 0)
 
-    title = "Мои работы"
-    return render_template("index.html", jobs=jobs, title=title)
+        title = "Мои работы"
+        return render_template("index.html", jobs=jobs, title=title)
+    finally:
+        session.close()
 
 
 @app.route('/my-responses')
 @login_required
 def my_responses():
-    session = db_session.create_session()
-    responses = session.query(Responses).filter_by(user_id=current_user.id)
-    return render_template("my_responses.html", responses=responses)
+    try:
+        session = db_session.create_session()
+        responses = session.query(Responses).filter_by(user_id=current_user.id)
+        return render_template("my_responses.html", responses=responses)
+    finally:
+        session.close()
 
 
 @app.route('/delete-responses/<int:id>', methods=['GET', 'POST'])
 @login_required
 def responses_delete(id):
     session = db_session.create_session()
-    response = session.query(Responses).filter(Responses.id == id, Responses.user == current_user).first()
-    if response:
-        if response.job:
-            if response.job.executor_id == current_user.id:
-                response.job.status = "Открыт"
-                response.job.executor_id = None
-            session.delete(response)
-            session.commit()
+    try:
+        response = session.query(Responses).filter(Responses.id == id, Responses.user_id == current_user.id).first()
+        if response:
+            if response.job:
+                if response.job.executor_id == current_user.id:
+                    response.job.status = "Открыт"
+                    response.job.executor_id = None
+                session.delete(response)
+                session.commit()
+            else:
+                session.delete(response)
+                session.commit()
         else:
-            session.delete(response)
-            session.commit()
-    else:
-        abort(404)
-    return redirect('/my-responses')
+            abort(404)
+        return redirect('/my-responses')
+    finally:
+        session.close()
 
 
 @app.route('/profile/<int:user_id>')
 @login_required
 def profile(user_id):
     session = db_session.create_session()
-    user = session.query(User).get(user_id)
-    if not user:
-        abort(404, description="Пользователь не найден")
+    try:
+        user = session.query(User).get(user_id)
+        if not user:
+            abort(404, description="Пользователь не найден")
 
-    completed_jobs = session.query(Jobs).filter(
-        Jobs.executor_id == user.id,
-        Jobs.status == "Завершён"
-    ).order_by(Jobs.created_date.desc()).limit(2).all()
+        completed_jobs = session.query(Jobs).filter(
+            Jobs.executor_id == user.id,
+            Jobs.status == "Завершён"
+        ).order_by(Jobs.created_date.desc()).limit(2).all()
 
-    reviews = []
+        reviews = []
 
-    return render_template('profile.html', user=user, completed_jobs=completed_jobs, reviews=reviews)
+        return render_template('profile.html', user=user, completed_jobs=completed_jobs, reviews=reviews)
+    finally:
+        session.close()
 
 
 @app.route('/toggle-theme')
@@ -341,7 +392,6 @@ def toggle_theme():
         session['theme'] = 'light'
     else:
         session['theme'] = 'dark'
-    # Возвращаемся на предыдущую страницу
     return redirect(request.referrer or url_for('index'))
 
 
