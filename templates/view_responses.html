@@ -12,7 +12,7 @@
                         {% for response in responses %}
                             <div class="card mb-3 response-card">
                                 <div class="card-body">
-                                    <p><strong>Пользователь:</strong> {{ response.user.username }}</p>
+                                    <p><strong>Пользователь:</strong> <a href="/profile/{{ response.user_id }}">{{ response.user.username }}</a></p>
                                     <p><strong>Комментарий:</strong> {{ response.comment }}</p>
                                     <p><strong>Предлагаемая цена:</strong> {{ response.price }} ₽</p>
                                     <p><strong>Дата отклика:</strong> {{ response.created_date.strftime('%Y-%m-%d %H:%M') }}</p>

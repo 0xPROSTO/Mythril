@@ -34,6 +34,13 @@
                                     ⚪ Неизвестно
                                 {% endif %}
                             </span>
+                            {% if current_user.id == item.author.id %}
+                                {% if item.response_count > 0 %}
+                                    <p class="card-text job-description mb-0 mr-2 fw-bold px-2 py-1"> Количество откликов: {{ item.response_count }}</p>
+                                {% else %}
+                                    <p class="card-text job-description mb-0 mr-2 fw-bold px-2 py-1"> Нет откликов</p>
+                                {% endif %}
+                            {% endif %}
                         </div>
                     {% endif %}
 
@@ -77,8 +84,8 @@
                         </div>
 
                         <!-- Правый нижний угол: автор и дата -->
-                        <div class="text-end text-muted small ms-auto">
-                            Автор: {{ item.author.username }}<br>
+                        <div class="text-end text-muted small ms-auto" style="text-align: right;">
+                            <a href="/profile/{{ item.author_id }}">Автор: {{ item.author.username }}</a><br>
                             {{ item.created_date.strftime('%Y-%m-%d %H:%M') }}
                         </div>
                     </div>

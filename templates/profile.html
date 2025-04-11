@@ -2,7 +2,11 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="mb-4">Профиль пользователя: {{ user.username }}</h1>
+    {% if current_user.id == user.id %}
+        <h1 class="mb-4">Ваш профиль: {{ user.username }}</h1>
+    {% else %}
+        <h1 class="mb-4">Профиль пользователя: {{ user.username }}</h1>
+    {% endif %}
 
     <!-- Информация о пользователе -->
     <div class="card mb-4">

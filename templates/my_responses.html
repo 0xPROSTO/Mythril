@@ -12,7 +12,7 @@
                         {% for response in responses %}
                             <div class="card mb-3 response-card">
                                 <div class="card-body">
-                                    <p><strong>Работа:</strong> {{ response.job.title }}</p>
+                                    <p><strong>Работа:</strong> <a href="/jobs/{{ response.job_id }}">{{ response.job.title }}</a></p>
                                     <p><strong>Комментарий:</strong> {{ response.comment }}</p>
                                     <p><strong>Предлагаемая цена:</strong> {{ response.price }} ₽</p>
                                     <p><strong>Дата отклика:</strong> {{ response.created_date.strftime('%Y-%m-%d %H:%M') }}</p>

@@ -1,7 +1,18 @@
 [
     {"value": "web_development", "label": "Веб-разработка"},
+    {"value": "mobile_development", "label": "Мобильная разработка"},
+    {"value": "software_development", "label": "Разработка ПО"},
+    {"value": "game_dev", "label": "Разработка игр"},
     {"value": "design", "label": "Дизайн"},
-    {"value": "writing", "label": "Написание текстов"},
-    {"value": "programming", "label": "Программирование"},
+    {"value": "video_audio", "label": "Видео и аудио"},
+    {"value": "content_writing", "label": "Копирайтинг и тексты"},
+    {"value": "marketing", "label": "Маркетинг и реклама"},
+    {"value": "data_analytics", "label": "Аналитика и работа с данными"},
+    {"value": "admin_support", "label": "Администрирование и поддержка"},
+    {"value": "engineering_3d", "label": "Инжиниринг и 3D-моделирование"},
+    {"value": "legal", "label": "Юриспруденция"},
+    {"value": "hr_recruiting", "label": "HR и рекрутинг"},
+    {"value": "testing", "label": "Тестирование и QA"},
+    {"value": "cybersecurity", "label": "Кибербезопасность"},
     {"value": "other", "label": "Другое"}
 ]

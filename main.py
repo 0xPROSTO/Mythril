@@ -33,8 +33,12 @@ def load_categories(file_path='data/categories.json'):
 
 @app.route("/")
 def index():
-    db_sess = db_session.create_session()
-    jobs = db_sess.query(Jobs)
+    session = db_session.create_session()
+    jobs = session.query(Jobs).all()
+
+    for job in jobs:
+        job.response_count = session.query(Responses).filter(Responses.job_id == job.id).count()
+
     title="Доступные работы"
     return render_template("index.html", jobs=jobs, title=title)
 

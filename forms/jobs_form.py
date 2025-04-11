@@ -9,7 +9,7 @@ def validate_price_format(form, field):
     if len(value[value.find('.') + 1:]) > 2:
         raise ValidationError("После точки допускается только 2 цифры")
 
-def load_categories(file_path='categories.json'):
+def load_categories(file_path='./data/categories.json'):
     with open(file_path, 'r', encoding='utf-8') as f:
         categories = json.load(f)
     return [(category['value'], category['label']) for category in categories]
@@ -18,15 +18,10 @@ def load_categories(file_path='categories.json'):
 class JobsForm(FlaskForm):
     title = StringField('Название работы', validators=[DataRequired()])
     description = TextAreaField("Описание работы", validators=[DataRequired()])
+    categories = load_categories()
     category = SelectField(
         'Категория',
-        choices=[
-            ('web_development', 'Веб-разработка'),
-            ('design', 'Дизайн'),
-            ('writing', 'Написание текстов'),
-            ('programming', 'Программирование'),
-            ('other', 'Другое')
-        ],
+        choices=categories,
         validators=[DataRequired()]
     )
     price = FloatField(
