@@ -8,6 +8,9 @@ from data.jobs import Jobs
 from data.responses import Responses
 from forms.jobs_form import JobsForm, ResponseForm
 
+from sqlalchemy import func, case
+from sqlalchemy.orm import joinedload
+
 jobs_blueprint = Blueprint('jobs', __name__)
 
 
@@ -21,11 +24,42 @@ def load_categories(file_path='data/categories.json'):
 def index():
     session = db_session.create_session()
     try:
-        jobs = session.query(Jobs).all()
+        status_order = case(
+            {
+                "Открыт": 1,
+                "В работе": 2,
+                "Завершён": 3
+            },
+            value=Jobs.status
+        )
 
-        # for job in jobs:
-        #     job.response_count = session.query(Responses).filter(Responses.job_id == job.id).count()
+        category = request.args.get('category')
+        status = request.args.get('status')
+        min_price = request.args.get('min_price')
+        max_price = request.args.get('max_price')
 
+        query = session.query(Jobs)
+
+        if category:
+            query = query.filter(Jobs.category == category)
+        if status:
+            query = query.filter(Jobs.status == status)
+        if min_price:
+            try:
+                min_price = int(min_price)
+                query = query.filter(Jobs.price >= float(min_price))
+            except ValueError:
+                pass
+        if max_price:
+            try:
+                max_price = int(max_price)
+                query = query.filter(Jobs.price <= float(max_price))
+            except ValueError:
+                pass
+
+        jobs = query.options(joinedload(Jobs.author)).order_by(status_order, Jobs.created_date).all()
+
+        # Подсчёт откликов
         response_counts = dict(
             session.query(Responses.job_id, func.count(Responses.id).label('response_count')).group_by(
                 Responses.job_id).all())
@@ -33,7 +67,11 @@ def index():
             job.response_count = response_counts.get(job.id, 0)
 
         title = "Доступные работы"
-        return render_template("index.html", jobs=jobs, title=title)
+        categories = load_categories()
+
+        return render_template("index.html", jobs=jobs, title=title,
+                               categories=categories, category=category, status=status,
+                               min_price=min_price, max_price=max_price)
     finally:
         session.close()
 

@@ -9,6 +9,49 @@
     <a href="/my/responses" class="btn btn-info mb-3">Мои отклики</a>
 {% endif %}
 
+<!-- Форма фильтрации -->
+<form method="get" class="mb-4">
+    <div class="row gx-2 align-items-end">
+        <div class="col-md-3 px-1">
+            <label for="category" class="form-label">Категория</label>
+            <select name="category" id="category" class="form-control">
+                <option value="">Все категории</option>
+                {% for value, label in categories.items() %}
+                    <option value="{{ value }}" {% if category == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2 px-1">
+            <label for="status" class="form-label">Статус</label>
+            <select name="status" id="status" class="form-control">
+                <option value="">Все статусы</option>
+                {% for status_value in ["Открыт", "В работе", "Завершён"] %}
+                    <option value="{{ status_value }}" {% if status == status_value %}selected{% endif %}>
+                        {{ status_value }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2 px-1">
+            <label for="min_price" class="form-label">Цена от</label>
+            <input type="number" name="min_price" id="min_price" class="form-control" min="0" value="{{ min_price or '' }}" placeholder="0">
+        </div>
+        <div class="col-md-2 px-1">
+            <label for="max_price" class="form-label">Цена до</label>
+            <input type="number" name="max_price" id="max_price" class="form-control" min="0" value="{{ max_price or '' }}" placeholder="∞">
+        </div>
+        <div class="col-md-3 px-1">
+            <div class="d-flex">
+                <button type="submit" class="btn btn-primary w-50 mr-2">Применить</button>
+                <a href="{{ url_for('my.my_jobs') }}" class="btn btn-danger w-50">Сбросить</a>
+            </div>
+        </div>
+    </div>
+</form>
+
+
 <div class="row justify-content-center">
     {% for item in jobs %}
         <div class="col-12 col-lg-11 mb-4">

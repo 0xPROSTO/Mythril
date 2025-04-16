@@ -1,11 +1,14 @@
-from flask import Blueprint, render_template, redirect, abort
+from flask import Blueprint, render_template, redirect, abort, request
 from flask_login import login_required, current_user
 
 from data import db_session
 from data.jobs import Jobs
 from data.responses import Responses
 
-from sqlalchemy import func
+from sqlalchemy import func, case
+from sqlalchemy.orm import joinedload
+
+from routes.jobs_routes import load_categories
 
 my_blueprint = Blueprint('my', __name__)
 
@@ -15,16 +18,51 @@ my_blueprint = Blueprint('my', __name__)
 def my_jobs():
     session = db_session.create_session()
     try:
-        jobs = session.query(Jobs).filter(Jobs.author_id == current_user.id).all()
+        category = request.args.get('category')
+        status = request.args.get('status')
+        min_price = request.args.get('min_price')
+        max_price = request.args.get('max_price')
 
+        query = session.query(Jobs).filter(Jobs.author_id == current_user.id)
+
+        if category:
+            query = query.filter(Jobs.category == category)
+        if status:
+            query = query.filter(Jobs.status == status)
+        if min_price:
+            try:
+                min_price = int(min_price)
+                query = query.filter(Jobs.price >= float(min_price))
+            except ValueError:
+                pass
+        if max_price:
+            try:
+                max_price = int(max_price)
+                query = query.filter(Jobs.price <= float(max_price))
+            except ValueError:
+                pass
+
+        jobs = query.all()
+
+        # Подсчёт откликов
         response_counts = dict(
-            session.query(Responses.job_id, func.count(Responses.id).label('response_count')).group_by(
-                Responses.job_id).all())
+            session.query(Responses.job_id, func.count(Responses.id).
+                          label('response_count')).group_by(Responses.job_id).all())
         for job in jobs:
             job.response_count = response_counts.get(job.id, 0)
 
+        # Сортировка
+        jobs = sorted(
+            jobs,
+            key=lambda job: (1 if job.status == "Завершён" else 0, -job.response_count, job.created_date)
+        )
+
         title = "Мои работы"
-        return render_template("index.html", jobs=jobs, title=title)
+        categories = load_categories()
+
+        return render_template("index.html", jobs=jobs, title=title,
+                               categories=categories, category=category, status=status,
+                               min_price=min_price, max_price=max_price)
     finally:
         session.close()
 
