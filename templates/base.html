@@ -29,7 +29,7 @@
             <div class="d-flex align-items-center">
                 {% if current_user.is_authenticated %}
                     <a class="nav-link mr-3" href="/profile/{{ current_user.id }}" style="font-size: 1.5rem;">{{ current_user.username }}</a>
-                    <a class="nav-link btn btn-outline-secondary btn-sm mr-3" href="/toggle-theme">Тема</a>
+                    <a class="nav-link btn btn-outline-secondary btn-sm mr-3" href="/settings/theme/toggle">Тема</a>
                     <a class="nav-link btn btn-outline-danger btn-sm mr-3" href="/logout">Выйти</a>
                 {% else %}
                     <a class="btn btn-primary btn-sm mr-2" href="/register">Зарегистрироваться</a>

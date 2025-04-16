@@ -17,12 +17,12 @@
                                     <p><strong>Предлагаемая цена:</strong> {{ response.price }} ₽</p>
                                     <p><strong>Дата отклика:</strong> {{ response.created_date.strftime('%Y-%m-%d %H:%M') }}</p>
                                     {% if job.executor_id is none and current_user.id == job.author_id %}
-                                        <form action="/select-response/{{ job.id }}/{{ response.id }}" method="post">
+                                        <form action="/jobs/responses/select/{{ job.id }}/{{ response.id }}" method="post">
                                             <button type="submit" class="btn btn-success btn-sm">Выбрать исполнителя</button>
                                         </form>
                                     {% elif job.executor_id == response.user_id %}
                                         <span class="badge bg-success">Выбран</span>
-                                        <form action="/cancel-response/{{ job.id }}/{{ response.id }}" method="post">
+                                        <form action="/jobs/responses/cancel/{{ job.id }}/{{ response.id }}" method="post">
                                             <button href="" class="btn btn-warning btn-sm">Отменить исполнителя</button>
                                         </form>
                                     {% endif %}

@@ -4,9 +4,9 @@
 <h1 class="mb-4">{{ title }}</h1>
 
 {% if current_user.is_authenticated %}
-    <a href="/add-jobs" class="btn btn-secondary mb-3">Добавить работу</a>
-    <a href="/my-jobs" class="btn btn-primary mb-3">Мои работы</a>
-    <a href="/my-responses" class="btn btn-info mb-3">Мои отклики</a>
+    <a href="/jobs/add" class="btn btn-secondary mb-3">Добавить работу</a>
+    <a href="/my/jobs" class="btn btn-primary mb-3">Мои работы</a>
+    <a href="/my/responses" class="btn btn-info mb-3">Мои отклики</a>
 {% endif %}
 
 <div class="row justify-content-center">
@@ -19,7 +19,7 @@
                     <!-- Описание -->
                     <p class="card-text job-description mb-1">{{ item.description }}</p>
 
-                    <!-- Статус для авторизованных пользователей (цена и статус в одной строке) -->
+                    <!-- Статус для авторизованных пользователей -->
                     {% if current_user.is_authenticated %}
                         <div class="d-flex align-items-center">
                             <p class="card-text job-description mb-0 mr-2 fw-bold" style="font-size: 1.3rem;">{{ item.price }} ₽</p>
@@ -44,9 +44,8 @@
                         </div>
                     {% endif %}
 
-                    <!-- Нижняя часть: статус/кнопки и автор/дата -->
+                    <!-- Статус для неавторизованных пользователей -->
                     <div class="d-flex justify-content-between align-items-end mt-2">
-                        <!-- Левый нижний угол: статус (неавторизован) или кнопки (авторизован) -->
                         <div>
                             {% if not current_user.is_authenticated %}
                                 <div class="d-flex align-items-center mb-1">
@@ -63,27 +62,31 @@
                                         {% endif %}
                                     </span>
                                 </div>
+                            <!-- Кнопочки -->
                             {% elif current_user == item.author or current_user.role >= 2 %}
                                 <div class="d-flex gap-2">
+                                    {% if item.status == "В работе" and current_user == item.author%}
+                                        <a href="/jobs/complete/{{ item.id }}" class="btn btn-success btn-sm mr-2">Отметить завершённой</a>
+                                    {% endif %}
                                     <a href="/jobs/{{ item.id }}" class="btn btn-outline-primary btn-sm mr-2">Посмотреть</a>
                                     {% if item.status == "Открыт" and current_user.role >= 2 and current_user != item.author%}
-                                        <a href="/answer-jobs/{{ item.id }}" class="btn btn-outline-info btn-sm mr-2">Откликнуться</a>
+                                        <a href="/jobs/answer/{{ item.id }}" class="btn btn-outline-info btn-sm mr-2">Откликнуться</a>
                                     {% endif %}
-                                    <a href="/view-responses/{{ item.id }}" class="btn btn-outline-info btn-sm mr-2">Посмотреть отклики</a>
-                                    <a href="/edit-jobs/{{ item.id }}" class="btn btn-outline-warning btn-sm mr-2">Изменить</a>
-                                    <a href="/delete-jobs/{{ item.id }}" class="btn btn-outline-danger btn-sm mr-2">Удалить</a>
+                                    <a href="/jobs/responses/{{ item.id }}" class="btn btn-outline-info btn-sm mr-2">Посмотреть отклики</a>
+                                    <a href="/jobs/edit/{{ item.id }}" class="btn btn-outline-warning btn-sm mr-2">Изменить</a>
+                                    <a href="/jobs/delete/{{ item.id }}" class="btn btn-outline-danger btn-sm mr-2">Удалить</a>
                                 </div>
                             {% else %}
                                 <div class="d-flex gap-2">
                                     <a href="/jobs/{{ item.id }}" class="btn btn-outline-primary btn-sm mr-2">Посмотреть</a>
                                     {% if item.status == "Открыт" %}
-                                        <a href="/answer-jobs/{{ item.id }}" class="btn btn-outline-info btn-sm mr-2">Откликнуться</a>
+                                        <a href="/jobs/answer/{{ item.id }}" class="btn btn-outline-info btn-sm mr-2">Откликнуться</a>
                                     {% endif %}
                                 </div>
                             {% endif %}
                         </div>
 
-                        <!-- Правый нижний угол: автор и дата -->
+                        <!-- автор и дата -->
                         <div class="text-end text-muted small ms-auto" style="text-align: right;">
                             {% if not current_user.is_authenticated %}
                                 Автор: {{ item.author.username }}<br>

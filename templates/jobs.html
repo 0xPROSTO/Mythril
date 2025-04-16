@@ -54,15 +54,17 @@
                 </p>
             {% endfor %}
         </div>
-        <div class="form-group">
-            {{ form.status.label }}<br>
-            {{ form.status(class="form-control") }}<br>
-            {% for error in form.status.errors %}
-                <p class="alert alert-danger" role="alert">
-                    {{ error }}
-                </p>
-            {% endfor %}
-        </div>
+        {% if can_edit_status %}
+            <div class="form-group">
+                {{ form.status.label }}<br>
+                {{ form.status(class="form-control") }}<br>
+                {% for error in form.status.errors %}
+                    <p class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </p>
+                {% endfor %}
+            </div>
+        {% endif %}
         <div class="form-group">
             {{ form.submit(type="submit", class="btn btn-primary") }}
         </div>

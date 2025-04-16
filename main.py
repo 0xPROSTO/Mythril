@@ -1,5 +1,4 @@
 import json
-import datetime
 
 from flask import Flask, render_template, redirect, request, abort, flash, session, url_for
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
@@ -22,7 +21,7 @@ app.config['SECRET_KEY'] = 'ENTER_YOUR_SECRETKEY_HERE'
 
 def main():
     db_session.global_init("database/database.db")
-    session = db_session.create_session()
+    # session = db_session.create_session()
 
     app.run(port=8080)
 
@@ -110,10 +109,11 @@ def login():
     return render_template('login.html', title='Авторизация', form=form)
 
 
-@app.route('/add-jobs', methods=['GET', 'POST'])
+@app.route('/jobs/add', methods=['GET', 'POST'])
 @login_required
 def add_jobs():
     form = JobsForm()
+    can_edit_status = True if current_user.role > 1 else False
     if form.validate_on_submit():
         session = db_session.create_session()
         jobs = Jobs()
@@ -128,10 +128,10 @@ def add_jobs():
         session.commit()
         session.close()
         return redirect('/')
-    return render_template('jobs.html', title='Добавление работы', form=form)
+    return render_template('jobs.html', title='Добавление работы', form=form, can_edit_status=can_edit_status)
 
 
-@app.route('/delete-jobs/<int:id>', methods=['GET', 'POST'])
+@app.route('/jobs/delete/<int:id>', methods=['GET', 'POST'])
 @login_required
 def jobs_delete(id):
     session = db_session.create_session()
@@ -150,10 +150,24 @@ def jobs_delete(id):
         session.close()
 
 
-@app.route('/edit-jobs/<int:id>', methods=['GET', 'POST'])
+@app.route('/jobs/complete/<int:job_id>', methods=['GET', 'POST'])
+@login_required
+def jobs_comlete(job_id):
+    session = db_session.create_session()
+    try:
+        job = session.query(Jobs).filter(Jobs.id == job_id).first()
+        job.status = 'Завершён'
+        session.commit()
+        return redirect('/')
+    finally:
+        session.close()
+
+
+@app.route('/jobs/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_jobs(id):
     form = JobsForm()
+    can_edit_status = True if current_user.role > 1 else False
     session = db_session.create_session()
     try:
         jobs = session.query(Jobs).filter(Jobs.id == id).first()
@@ -180,7 +194,7 @@ def edit_jobs(id):
             session.commit()
             session.close()
             return redirect('/')
-        return render_template('jobs.html', title='Редактирование работы', form=form)
+        return render_template('jobs.html', title='Редактирование работы', form=form, can_edit_status=can_edit_status)
     finally:
         session.close()
 
@@ -193,14 +207,15 @@ def jobs_view(id):
         item = session.query(Jobs).filter(Jobs.id == id).first()
         if not item:
             abort(404)
+
         categories = load_categories()
         return render_template('view_jobs.html', title='Просмотр работы',
-                           item=item, categories=categories)
+                               item=item, categories=categories)
     finally:
         session.close()
 
 
-@app.route('/answer-jobs/<int:job_id>', methods=['GET', 'POST'])
+@app.route('/jobs/answer/<int:job_id>', methods=['GET', 'POST'])
 @login_required
 def answer_jobs(job_id):
     session = db_session.create_session()
@@ -216,7 +231,7 @@ def answer_jobs(job_id):
             return redirect(f'/jobs/{job_id}')
         if session.query(Responses).filter_by(job_id=job_id, user_id=current_user.id).first():
             flash('Вы уже откликнулись на это объявление.', 'danger')
-            return redirect(f'/my-responses')
+            return redirect(f'/my/responses')
 
         form = ResponseForm(price=job.price)
         categories = load_categories()
@@ -239,7 +254,7 @@ def answer_jobs(job_id):
         session.close()
 
 
-@app.route('/view-responses/<int:job_id>')
+@app.route('/jobs/responses/<int:job_id>')
 @login_required
 def view_responses(job_id):
     session = db_session.create_session()
@@ -257,7 +272,7 @@ def view_responses(job_id):
         session.close()
 
 
-@app.route('/select-response/<int:job_id>/<int:response_id>', methods=['POST'])
+@app.route('/jobs/responses/select/<int:job_id>/<int:response_id>', methods=['POST'])
 @login_required
 def select_response(job_id, response_id):
     session = db_session.create_session()
@@ -269,23 +284,23 @@ def select_response(job_id, response_id):
             abort(404)
         if job.author_id != current_user.id:
             flash('Вы не можете выбрать исполнителя для этой работы.', 'danger')
-            return redirect(f'/view-responses/{job_id}')
+            return redirect(f'/jobs/responses/{job_id}')
         if job.executor_id is not None:
             flash('Исполнитель уже выбран.', 'danger')
-            return redirect(f'/view-responses/{job_id}')
+            return redirect(f'/jobs/responses/{job_id}')
         if job.status != "Открыт":
             flash('Работа уже в работе или завершена.', 'danger')
-            return redirect(f'/view-responses/{job_id}')
+            return redirect(f'/jobs/responses/{job_id}')
 
         job.executor_id = response.user_id
         job.status = "В работе"
         session.commit()
-        return redirect(f'/view-responses/{job_id}')
+        return redirect(f'/jobs/responses/{job_id}')
     finally:
         session.close()
 
 
-@app.route('/cancel-response/<int:job_id>/<int:response_id>', methods=['POST'])
+@app.route('/jobs/responses/cancel/<int:job_id>/<int:response_id>', methods=['POST'])
 @login_required
 def cancel_response(job_id, response_id):
     session = db_session.create_session()
@@ -297,21 +312,21 @@ def cancel_response(job_id, response_id):
             abort(404)
         if job.author_id != current_user.id:
             flash('Вы не можете выбрать исполнителя для этой работы.', 'danger')
-            return redirect(f'/view-responses/{job_id}')
+            return redirect(f'/jobs/responses/{job_id}')
         if job.executor_id is None:
             flash('Исполнитель ещё не выбран.', 'danger')
-            return redirect(f'/view-responses/{job_id}')
+            return redirect(f'/jobs/responses/{job_id}')
 
         job.executor_id = None
         job.status = "Открыт"
         session.commit()
 
-        return redirect(f'/view-responses/{job_id}')
+        return redirect(f'/jobs/responses/{job_id}')
     finally:
         session.close()
 
 
-@app.route('/my-jobs')
+@app.route('/my/jobs')
 @login_required
 def my_jobs():
     session = db_session.create_session()
@@ -330,18 +345,18 @@ def my_jobs():
         session.close()
 
 
-@app.route('/my-responses')
+@app.route('/my/responses')
 @login_required
 def my_responses():
+    session = db_session.create_session()
     try:
-        session = db_session.create_session()
         responses = session.query(Responses).filter_by(user_id=current_user.id)
         return render_template("my_responses.html", responses=responses)
     finally:
         session.close()
 
 
-@app.route('/delete-responses/<int:id>', methods=['GET', 'POST'])
+@app.route('/my/responses/delete/<int:id>', methods=['GET', 'POST'])
 @login_required
 def responses_delete(id):
     session = db_session.create_session()
@@ -359,7 +374,7 @@ def responses_delete(id):
                 session.commit()
         else:
             abort(404)
-        return redirect('/my-responses')
+        return redirect('/my/responses')
     finally:
         session.close()
 
@@ -385,7 +400,7 @@ def profile(user_id):
         session.close()
 
 
-@app.route('/toggle-theme')
+@app.route('/settings/theme/toggle')
 def toggle_theme():
     # Переключаем тему в сессии
     if session.get('theme') == 'dark':
