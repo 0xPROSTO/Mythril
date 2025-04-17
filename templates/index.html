@@ -75,7 +75,7 @@
                     {% if current_user.is_authenticated %}
                         <div class="d-flex align-items-center">
                             <p class="card-text job-description mb-0 mr-2 fw-bold" style="font-size: 1.3rem;">{{ item.price }} ₽</p>
-                            <span class="badge bg-light text-primary fw-semibold px-2 py-1">
+                            <span class="badge bg-light text-primary fw-semibold px-2 py-1 mb-0 mr-2" style="font-size: 0.9rem;">
                                 {% if item.status == "Открыт" %}
                                     🟢 Открыт
                                 {% elif item.status == "В работе" %}
@@ -86,11 +86,12 @@
                                     ⚪ Неизвестно
                                 {% endif %}
                             </span>
+                            <p class="card-text job-description mb-0 mr-2 mythril-color" style="font-size: 1.15rem;">{{ categories[item.category] }}</p>
                             {% if current_user.id == item.author.id %}
                                 {% if item.response_count > 0 %}
-                                    <p class="card-text job-description mb-0 mr-2 fw-bold px-2 py-1"> Количество откликов: {{ item.response_count }}</p>
+                                    <a href="/jobs/responses/{{ item.id }}" class="card-text job-description mb-0 mr-2 fw-bold px-2" style="font-size: 1.15rem;"> Количество откликов: {{ item.response_count }}</a>
                                 {% else %}
-                                    <p class="card-text job-description mb-0 mr-2 fw-bold px-2 py-1"> Нет откликов</p>
+                                    <a href="/jobs/responses/{{ item.id }}" class="card-text job-description mb-0 mr-2 fw-bold px-2" style="font-size: 1.15rem;"> Нет откликов</a>
                                 {% endif %}
                             {% endif %}
                         </div>
@@ -102,7 +103,7 @@
                             {% if not current_user.is_authenticated %}
                                 <div class="d-flex align-items-center mb-1">
                                     <p class="card-text job-description mb-0 mr-2 fw-bold" style="font-size: 1.25rem;">{{ item.price }} ₽</p>
-                                    <span class="badge bg-light text-primary fw-semibold px-2 py-1">
+                                    <span class="badge bg-light text-primary fw-semibold px-2 py-1 mb-0 mr-2">
                                         {% if item.status == "Открыт" %}
                                             🟢 Открыт
                                         {% elif item.status == "В работе" %}
@@ -113,7 +114,9 @@
                                             ⚪ Неизвестно
                                         {% endif %}
                                     </span>
+                                    <p class="card-text job-description mb-0 mr-2 mythril-color" style="font-size: 1.15rem;">{{ categories[item.category] }}</p>
                                 </div>
+
                             <!-- Кнопочки -->
                             {% elif current_user == item.author or current_user.role >= 2 %}
                                 <div class="d-flex gap-2">
