@@ -1,120 +1,297 @@
-/* Светлая тема (по умолчанию) */
 body {
     background-color: #ffffff;
     color: #212529;
 }
 
 .navbar {
-    background-color: #f8f9fa !important; /* Светлый фон */
+    background-color: #f8f9fa !important;
+    border-bottom: 1px solid #003941;
 }
 
-.card {
-    background-color: #ffffff;
-    border-color: #dee2e6;
-    color: #212529;
+.text-primary,
+.card-title,
+.job-title,
+h5, h4, h3 {
+    color: #00514c !important;
 }
 
+
+/* Основные кнопки */
+.btn-primary {
+    background-color: #003941 !important;
+    border-color: #003941 !important;
+    color: #ffffff !important;
+}
+
+.btn-primary:hover {
+    background-color: #00514c !important;
+    border-color: #00514c !important;
+}
+
+.btn-success {
+    background-color: #007c73 !important;
+    border-color: #007c73 !important;
+    color: #fff !important;
+}
+
+.btn-success:hover {
+    background-color: #00988c !important;
+    border-color: #00988c !important;
+}
+
+.btn-outline-primary {
+    border-color: #003941 !important;
+    color: #003941 !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: #003941 !important;
+    border-color: #003941 !important;
+    color: #f1f1f1 !important;
+}
+
+.btn-outline-warning {
+    border-color: #ff9703 !important;
+    color: #ff9703 !important;
+}
+
+.btn-outline-warning:hover {
+    background-color: #ff9703 !important;
+    border-color: #ff9703 !important;
+    color: #003941 !important;
+}
+
+/* Кнопка выхода и переключения темы */
+.btn-outline-danger {
+    color: #dc3545 !important;
+    border-color: #dc3545 !important;
+}
+.btn-outline-danger:hover {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+}
+
+/* Кнопка "Тема" */
+.btn-outline-secondary {
+    color: #003941 !important;
+    border-color: #003941 !important;
+}
+.btn-outline-secondary:hover {
+    background-color: #003941 !important;
+    color: #ffffff !important;
+}
+
+.btn-outline-primary {
+    border-color: #003941 !important;
+}
+
+.btn-outline-primary:hover {
+  background-color: #003941 !important;
+  border-color: #003941 !important;
+}
+
+/* Формы */
+.form-control {
+    border: 1px solid #003941;
+}
+
+.form-control:focus {
+    border-color: #007c73;
+    box-shadow: 0 0 0 0.2rem rgba(0, 124, 115, 0.25);
+}
+
+/* Ссылки */
+a:not(.btn) {
+    color: #007c73;
+    font-weight: 550;
+}
+a:not(.btn):hover {
+    color: #00a296;
+}
+
+/* Бейджи */
+.badge.bg-light {
+    background-color: #e9f6f4 !important;
+    color: #003941 !important;
+    border: 1px solid #003941;
+}
+
+/* Мифриловый бренд */
 .navbar-brand-mythril {
-    color: rgb(0, 52, 64);
+    color: #003941;
     font-weight: bold;
     font-size: 1.75rem;
 }
 
-.text-dark {
-    color: #000000 !important;
-}
-
-.btn-outline-danger {
-    color: #dc3545;
-    border-color: #dc3545;
-}
-
-.btn-outline-danger:hover {
-    background-color: #dc3545;
-    color: #fff;
-}
-
-.badge.bg-light {
-    background-color: #f8f9fa !important;
-    color: #212529;
-}
-
 .mythril-color {
-    rgb(0, 52, 64)
+    color: #003941 !important;
 }
 
-/* Тёмная тема */
+
+
+
+
+
+
+
+
+
+
+
+
+/*       /$$$$$$$   /$$$$$$  /$$$$$$$  /$$   /$$        */
+/*      | $$__  $$ /$$__  $$| $$__  $$| $$  /$$/        */
+/*      | $$  \ $$| $$  \ $$| $$  \ $$| $$ /$$/         */
+/*      | $$  | $$| $$$$$$$$| $$$$$$$/| $$$$$/          */
+/*      | $$  | $$| $$__  $$| $$__  $$| $$  $$          */
+/*      | $$  | $$| $$  | $$| $$  \ $$| $$\  $$         */
+/*      | $$$$$$$/| $$  | $$| $$  | $$| $$ \  $$        */
+/*      |_______/ |__/  |__/|__/  |__/|__/  \__/        */
+
+
+
 body.dark-theme {
-    background-color: #181a1b;
-    color: #f8f9fa;
+    background-color: #121212;
+    color: #f1f1f1;
 }
 
-body.dark-theme .navbar {
-    background-color: #1b1e1f !important; /* Тёмный фон для navbar */
-    color: #f8f9fa; /* Светлый текст */
+.dark-theme .text-primary,
+.dark-theme .card-title,
+.dark-theme .job-title,
+.dark-theme h5,
+.dark-theme h4 {
+    color: #00beaf !important;
 }
 
-body.dark-theme .card {
-    background-color: #1b1e1f;
-    border-color: #495057;
-    color: #f8f9fa;
+.dark-theme .navbar {
+    background-color: #1b1e1f !important;
+    color: #f1f1f1 !important;
+    border-bottom: 1px solid #007c73; /* мифриловая линия */
 }
 
-body.dark-theme .navbar-brand-mythril {
-    color: rgb(0, 52, 64); /* Оставляем ваш цвет */
+/* Карточки */
+.dark-theme .card {
+    background-color: #1e1e1e !important;
+    border: 1px solid #007c73 !important;
+    color: #f1f1f1 !important;
 }
 
-body.dark-theme .text-dark {
-    color: #000000 !important; /* Чёрный остаётся чёрным */
+.dark-theme .job-card:hover {
+    box-shadow:
+        0 4px 12px rgba(0, 57, 65, 0.4),
+        0 8px 24px rgba(0, 57, 65, 0.5);
 }
 
-body.dark-theme .btn-outline-danger {
-    color: #dc3545;
-    border-color: #dc3545;
+/* Кнопки */
+.dark-theme .btn-primary {
+    background-color: #003941 !important;
+    border-color: #003941 !important;
+    color: #ffffff !important;
 }
 
-body.dark-theme .btn-outline-danger:hover {
-    background-color: #dc3545;
-    color: #fff;
+.dark-theme .btn-primary:hover {
+    background-color: #00514c !important;
+    border-color: #00514c !important;
 }
 
-body.dark-theme .badge.bg-light {
-    background-color: #495057 !important;
-    color: #f8f9fa;
+.dark-theme .btn-info {
+    background-color: #00beaf !important;
+    border-color: #00beaf !important;
+    color: #ffffff !important;
 }
 
-body.dark-theme a:not(.navbar-brand-mythril):not(.btn) {
-    color: #f8f9fa; /* Светлый цвет для обычных ссылок */
+.dark-theme .btn-info:hover {
+    background-color: #008b80 !important;
+    border-color: #008b80 !important;
 }
 
-body.dark-theme a:not(.navbar-brand-mythril):not(.btn):hover {
-    color: #adb5bd; /* Более тусклый при наведении */
+.dark-theme .btn-success {
+    background-color: #007c73 !important;
+    border-color: #007c73 !important;
 }
 
-/* Стили для полей ввода в тёмной теме */
+.dark-theme .btn-success:hover {
+    background-color: #00988c !important;
+    border-color: #00988c !important;
+}
+
+.dark-theme .btn {
+    color: #f1f1f1;
+}
+
+.dark-theme .btn:hover {
+    color: #f1f1f1;
+}
+
+.dark-theme .btn-outline-secondary {
+    color: #82d0c3 !important;
+    border-color: #82d0c3 !important;
+}
+
+.dark-theme .btn-outline-secondary:hover {
+    background-color: #82d0c3 !important;
+    color: #121212 !important;
+}
+
+.btn-outline-primary {
+    border-color: #007c73 !important;
+    color: #007c73 !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: #007c73 !important;
+    border-color: #007c73 !important;
+    color: #f1f1f1 !important;
+}
+
+.btn-outline-info {
+    border-color: #00beaf !important;
+    color: #00beaf !important;
+}
+
+.btn-outline-info:hover {
+    background-color: #00beaf !important;
+    border-color: #00beaf !important;
+    color: #f1f1f1 !important;
+}
+
+/* Поля ввода */
 body.dark-theme .form-control {
-    background-color: #343a40; /* Тёмный фон */
-    color: #f8f9fa; /* Светлый текст */
-    border-color: #495057; /* Тёмная граница */
+    background-color: #2c2c2c !important;
+    border-color: #003941 !important;
+    color: #f1f1f1 !important;
 }
 
 body.dark-theme .form-control:focus {
-    background-color: #343a40; /* Тёмный фон при фокусе */
-    color: #f8f9fa; /* Светлый текст при фокусе */
-    border-color: #6c757d; /* Более светлая граница при фокусе */
-    box-shadow: 0 0 0 0.2rem rgba(108, 117, 125, 0.25); /* Тень в тёмных тонах */
+    background-color: #2c2c2c;
+    border-color: #82d0c3 !important;
+    box-shadow: 0 0 0 0.2rem rgba(130, 208, 195, 0.25);
 }
 
-body.dark-theme .input-group-text {
-    background-color: #495057; /* Тёмный фон для дополнений */
-    color: #f8f9fa; /* Светлый текст */
-    border-color: #495057; /* Тёмная граница */
+/* Интерактивные элементы */
+body.dark-theme a {
+    color: #00a296;
+    transition: color 0.2s ease;
 }
 
-main.container {
-    padding-top: 20px;
+body.dark-theme a:hover {
+    color: #007c73;
 }
 
-.mythril-color {
-    rgb(130, 208, 195)
+body.dark-theme .badge.bg-light {
+    background-color: #2c2c2c !important;
+    border: 1px solid #82d0c3 !important;
+    color: #82d0c3 !important;
+}
+
+body.dark-theme .mythril-color {
+    color: #82d0c3 !important;
+}
+
+.input-group-text, .input-group-append {
+    color: #f1f1f1 !important;
+    background-color: #2c2c2c !important;
+    border-color: #003941 !important;
+    border-bottom-right-radius: 4px !important;
+    border-top-right-radius: 4px !important;
 }

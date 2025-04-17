@@ -15,7 +15,10 @@
 }
 
 .card {
-    border-radius: 12px
+    border-radius: 12px;
+    border: 1px solid #003941 !important;
+    /*border-color: #003941 !important;*/
+    color: #212529 !important;
 }
 
 .job-card {
@@ -23,9 +26,12 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     border-radius: 12px;
 }
+
 .job-card:hover {
     transform: translateY(-6px);
-    box-shadow: 0 12px 24px rgba(0, 123, 255, 0.3);
+    box-shadow:
+        0 4px 12px rgba(0, 57, 65, 0.2),
+        0 8px 24px rgba(0, 57, 65, 0.25);
     z-index: 5;
 }
 
