@@ -15,6 +15,11 @@ h5, h4, h3 {
     color: #00514c !important;
 }
 
+.card-text {
+    color: black !important;
+    font-weight: normal !important;
+}
+
 
 /* Основные кнопки */
 .btn-primary {
@@ -161,6 +166,11 @@ body.dark-theme {
 .dark-theme h5,
 .dark-theme h4 {
     color: #00beaf !important;
+}
+
+.dark-theme .card-text {
+    color: #f1f1f1 !important;
+    font-weight: normal !important;
 }
 
 .dark-theme .navbar {
