@@ -11,6 +11,8 @@ from forms.jobs_form import JobsForm, ResponseForm
 from sqlalchemy import func, case
 from sqlalchemy.orm import joinedload
 
+from get_rates import get_currencies
+
 jobs_blueprint = Blueprint('jobs', __name__)
 
 
@@ -37,23 +39,29 @@ def index():
         status = request.args.get('status')
         min_price = request.args.get('min_price')
         max_price = request.args.get('max_price')
+        currency = request.args.get('currency', 'RUB')
+
+        # Получить курсы
+        currency_data = get_currencies()
+        rates = currency_data["rates"]
 
         query = session.query(Jobs)
-
         if category:
             query = query.filter(Jobs.category == category)
         if status:
             query = query.filter(Jobs.status == status)
         if min_price:
             try:
-                min_price = int(min_price)
-                query = query.filter(Jobs.price >= float(min_price))
+                min_price = float(min_price)
+                min_price_rub = min_price / rates.get(currency, 1.0)
+                query = query.filter(Jobs.price >= float(min_price_rub))
             except ValueError:
                 pass
         if max_price:
             try:
-                max_price = int(max_price)
-                query = query.filter(Jobs.price <= float(max_price))
+                max_price = float(max_price)
+                max_price_rub = max_price / rates.get(currency, 1.0)
+                query = query.filter(Jobs.price <= float(max_price_rub))
             except ValueError:
                 pass
 
@@ -61,17 +69,20 @@ def index():
 
         # Подсчёт откликов
         response_counts = dict(
-            session.query(Responses.job_id, func.count(Responses.id).label('response_count')).group_by(
-                Responses.job_id).all())
+            session.query(Responses.job_id, func.count(Responses.id).
+                          label('response_count')).group_by(Responses.job_id).all())
+
         for job in jobs:
             job.response_count = response_counts.get(job.id, 0)
+            job.display_price = round(job.price * rates.get(currency, 1.0), 2)
+            job.currency = currency
 
         title = "Доступные работы"
         categories = load_categories()
 
         return render_template("index.html", jobs=jobs, title=title,
                                categories=categories, category=category, status=status,
-                               min_price=min_price, max_price=max_price)
+                               min_price=min_price, max_price=max_price, currency=currency)
     finally:
         session.close()
 

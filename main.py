@@ -1,20 +1,18 @@
 import json
 
-from flask import Flask, render_template, redirect, request, abort, flash, session, url_for
-from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from flask import Flask, render_template, redirect, request, abort, session, url_for
+from flask_login import LoginManager, login_user, login_required
 
 from data import db_session
 from data.users import User
 from data.jobs import Jobs
-from data.responses import Responses
-from data.reviews import Reviews
-from forms.user_form import RegisterForm, LoginForm
-from forms.jobs_form import JobsForm, ResponseForm
 
 from routes.jobs_routes import jobs_blueprint
 from routes.responses_routes import responses_blueprint
 from routes.my_routes import my_blueprint
 from routes.auth_routes import auth_blueprint
+
+import logging
 
 from sqlalchemy import func
 

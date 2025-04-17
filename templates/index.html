@@ -34,13 +34,23 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="col-md-2 px-1">
-            <label for="min_price" class="form-label">Цена от</label>
-            <input type="number" name="min_price" id="min_price" class="form-control" min="0" value="{{ min_price or '' }}" placeholder="0">
+        <div class="col-md-3 px-1 d-flex">
+            <div class="w-50 mr-2">
+                <label for="min_price" class="form-label">Цена от</label>
+                <input type="number" name="min_price" id="min_price" class="form-control" min="0" value="{{ min_price or '' }}" placeholder="0">
+            </div>
+            <div class="w-50">
+                <label for="max_price" class="form-label">Цена до</label>
+                <input type="number" name="max_price" id="max_price" class="form-control" min="0" value="{{ max_price or '' }}" placeholder="∞">
+            </div>
         </div>
-        <div class="col-md-2 px-1">
-            <label for="max_price" class="form-label">Цена до</label>
-            <input type="number" name="max_price" id="max_price" class="form-control" min="0" value="{{ max_price or '' }}" placeholder="∞">
+        <div class="col-md-1 px-1">
+            <label for="currency" class="form-label">Валюта</label>
+            <select name="currency" id="currency" class="form-control">
+                <option value="RUB" {% if currency == 'RUB' %}selected{% endif %}>RUB</option>
+                <option value="USD" {% if currency == 'USD' %}selected{% endif %}>USD</option>
+                <option value="EUR" {% if currency == 'EUR' %}selected{% endif %}>EUR</option>
+            </select>
         </div>
         <div class="col-md-3 px-1">
             <div class="d-flex">
@@ -74,7 +84,7 @@
                     <!-- Статус для авторизованных пользователей -->
                     {% if current_user.is_authenticated %}
                         <div class="d-flex align-items-center">
-                            <p class="card-text job-description mb-0 mr-2 fw-bold" style="font-size: 1.3rem;">{{ item.price }} ₽</p>
+                            <p class="card-text job-description mb-0 mr-2 fw-bold" style="font-size: 1.3rem;">{{ item.display_price }} {{ {"RUB": "₽", "EUR": "€", "USD": "$"}[item.currency] }}</p>
                             <span class="badge bg-light text-primary fw-semibold px-2 py-1 mb-0 mr-2" style="font-size: 0.9rem;">
                                 {% if item.status == "Открыт" %}
                                     🟢 Открыт
@@ -102,7 +112,7 @@
                         <div>
                             {% if not current_user.is_authenticated %}
                                 <div class="d-flex align-items-center mb-1">
-                                    <p class="card-text job-description mb-0 mr-2 fw-bold" style="font-size: 1.25rem;">{{ item.price }} ₽</p>
+                                    <p class="card-text job-description mb-0 mr-2 fw-bold" style="font-size: 1.25rem;">{{ item.display_price }} {{ {"RUB": "₽", "EUR": "€", "USD": "$"}[item.currency] }}</p>
                                     <span class="badge bg-light text-primary fw-semibold px-2 py-1 mb-0 mr-2">
                                         {% if item.status == "Открыт" %}
                                             🟢 Открыт

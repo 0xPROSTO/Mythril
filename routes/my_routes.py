@@ -10,6 +10,8 @@ from sqlalchemy.orm import joinedload
 
 from routes.jobs_routes import load_categories
 
+from get_rates import get_currencies
+
 my_blueprint = Blueprint('my', __name__)
 
 
@@ -22,8 +24,13 @@ def my_jobs():
         status = request.args.get('status')
         min_price = request.args.get('min_price')
         max_price = request.args.get('max_price')
+        currency = request.args.get('currency', 'RUB')
 
         query = session.query(Jobs).filter(Jobs.author_id == current_user.id)
+
+        # Получить курсы
+        currency_data = get_currencies()
+        rates = currency_data["rates"]
 
         if category:
             query = query.filter(Jobs.category == category)
@@ -31,14 +38,16 @@ def my_jobs():
             query = query.filter(Jobs.status == status)
         if min_price:
             try:
-                min_price = int(min_price)
-                query = query.filter(Jobs.price >= float(min_price))
+                min_price = float(min_price)
+                min_price_rub = min_price / rates.get(currency, 1.0)
+                query = query.filter(Jobs.price >= float(min_price_rub))
             except ValueError:
                 pass
         if max_price:
             try:
-                max_price = int(max_price)
-                query = query.filter(Jobs.price <= float(max_price))
+                max_price = float(max_price)
+                max_price_rub = max_price / rates.get(currency, 1.0)
+                query = query.filter(Jobs.price <= float(max_price_rub))
             except ValueError:
                 pass
 
@@ -57,12 +66,16 @@ def my_jobs():
             key=lambda job: (1 if job.status == "Завершён" else 0, -job.response_count, job.created_date)
         )
 
+        for job in jobs:
+            job.display_price = round(job.price * rates.get(currency, 1.0), 2)
+            job.currency = currency
+
         title = "Мои работы"
         categories = load_categories()
 
         return render_template("index.html", jobs=jobs, title=title,
                                categories=categories, category=category, status=status,
-                               min_price=min_price, max_price=max_price)
+                               min_price=min_price, max_price=max_price, currency=currency)
     finally:
         session.close()
 
