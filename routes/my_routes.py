@@ -5,7 +5,7 @@ from data import db_session
 from data.jobs import Jobs
 from data.responses import Responses
 
-from sqlalchemy import func, case
+from sqlalchemy import func, or_
 from sqlalchemy.orm import joinedload
 
 from routes.jobs_routes import load_categories
@@ -85,8 +85,20 @@ def my_jobs():
 def my_responses():
     session = db_session.create_session()
     try:
-        responses = session.query(Responses).filter_by(user_id=current_user.id)
-        return render_template("my_responses.html", responses=responses)
+        responses = (session.query(Responses).filter(
+            Responses.user_id == current_user.id,
+            Responses.job.has(Jobs.status != "Завершён")
+        ).order_by(Responses.created_date.desc())).all()
+
+        responses_history = session.query(Responses).outerjoin(Jobs, Responses.job_id == Jobs.id).filter(
+            Responses.user_id == current_user.id,
+            or_(
+                Jobs.status == "Завершён",
+                Jobs.id.is_(None)
+            )
+        ).order_by(Responses.created_date.desc()).all()
+        return render_template("my_responses.html", responses=responses,
+                               responses_history=responses_history)
     finally:
         session.close()
 

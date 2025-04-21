@@ -130,16 +130,24 @@
                             <!-- Кнопочки -->
                             {% elif current_user == item.author or current_user.role >= 2 %}
                                 <div class="d-flex gap-2">
-                                    {% if item.status == "В работе" and current_user == item.author%}
-                                        <a href="/jobs/complete/{{ item.id }}" class="btn btn-success btn-sm mr-2">Отметить завершённой</a>
+                                    {% if current_user == item.author %}
+                                        {% if item.status == "В работе"%}
+                                            <a href="/jobs/complete/{{ item.id }}" class="btn btn-success btn-sm mr-2">Отметить завершённой</a>
+                                        {% elif item.status == "Завершён" and not item.reviews %}
+                                            <a href="/reviews/add/{{ item.id }}" class="btn btn-success btn-sm mr-2">Оставить отзыв</a>
+                                        {% elif item.status == "Завершён" and item.reviews %}
+                                            <a href="/profile/{{ item.executor_id }}" class="btn btn-success btn-sm mr-2">Посмотреть отзыв</a>
+                                        {% endif %}
                                     {% endif %}
                                     <a href="/jobs/{{ item.id }}" class="btn btn-outline-primary btn-sm mr-2">Посмотреть</a>
-                                    {% if item.status == "Открыт" and current_user.role >= 2 and current_user != item.author%}
+                                    {% if item.status == "Открыт" and current_user.role >= 2 and current_user != item.author %}
                                         <a href="/jobs/answer/{{ item.id }}" class="btn btn-outline-info btn-sm mr-2">Откликнуться</a>
                                     {% endif %}
                                     <a href="/jobs/responses/{{ item.id }}" class="btn btn-outline-info btn-sm mr-2">Посмотреть отклики</a>
+                                    {% if item.status != "Завершён" or current_user.role >= 3 %}
                                     <a href="/jobs/edit/{{ item.id }}" class="btn btn-outline-warning btn-sm mr-2">Изменить</a>
                                     <a href="/jobs/delete/{{ item.id }}" class="btn btn-outline-danger btn-sm mr-2">Удалить</a>
+                                    {% endif %}
                                 </div>
                             {% else %}
                                 <div class="d-flex gap-2">

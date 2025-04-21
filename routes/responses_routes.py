@@ -60,6 +60,9 @@ def cancel_response(job_id, response_id):
     session = db_session.create_session()
     try:
         job = session.query(Jobs).get(job_id)
+        if job.status == "Завершён":
+            flash("Работа уже завершена", 'danger')
+            return redirect(f'/jobs/responses/{job_id}')
         response = session.query(Responses).get(response_id)
 
         if not job or not response:

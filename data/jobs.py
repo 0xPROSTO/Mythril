@@ -23,3 +23,4 @@ class Jobs(SqlAlchemyBase):
     author = orm.relationship("User", back_populates="jobs_authored", foreign_keys=[author_id])
     executor = orm.relationship("User", back_populates="jobs_executed", foreign_keys=[executor_id])
     responses = orm.relationship("Responses", back_populates="job")
+    reviews = orm.relationship("Reviews", back_populates="job")

@@ -35,7 +35,41 @@
                             </div>
                         {% endfor %}
                     {% else %}
-                        <p class="text-muted">На эту работу пока нет откликов.</p>
+                        <p class="text-muted">У вас пока нет откликов(</p>
+                    {% endif %}
+
+                    {% if responses_history %}
+                        <h3 class="text-primary mb-3">История откликов (завершённые отклики)</h3>
+                        {% for response_h in responses_history %}
+                            <div class="card mb-3 response-card">
+                                <div class="card-body">
+                                    {% if response_h.job %}
+                                        <p><strong>Работа:</strong> <a href="/jobs/{{ response_h.job_id }}">{{ response_h.job.title }}</a></p>
+                                    {% else %}
+                                        <p class="text-danger" style="font-size: 1.2rem"><strong>Работа была удалена</strong></p>
+                                    {% endif %}
+                                    <p><strong>Комментарий:</strong> {{ response_h.comment }}</p>
+                                    <p><strong>Предлагаемая цена:</strong> {{ response_h.price }} ₽</p>
+                                    <p><strong>Дата отклика:</strong> {{ response_h.created_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                                    <p>
+                                        <strong>Состояние:</strong>
+                                        {% if response_h.job %}
+                                            {% if response_h.job.executor_id == current_user.id %}
+                                            Завершён
+                                            {% else %}
+                                            Заказ завершил другой исполнитель
+                                            </p><p>
+                                            <a href="/my/responses/delete/{{ response_h.id }}" class="btn btn-outline-danger btn-sm mr-2">Удалить</a>
+                                            {% endif %}
+                                        {% else %}
+                                        Неизвестно
+                                        </p><p>
+                                        <a href="/my/responses/delete/{{ response_h.id }}" class="btn btn-outline-danger btn-sm mr-2">Удалить</a>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        {% endfor %}
                     {% endif %}
                 </div>
             </div>

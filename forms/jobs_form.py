@@ -1,6 +1,6 @@
 import json
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, FloatField, SubmitField, SelectField
+from wtforms import StringField, TextAreaField, FloatField, SubmitField, SelectField, IntegerField
 from wtforms.validators import DataRequired, NumberRange, ValidationError, Length
 
 
@@ -51,7 +51,7 @@ class JobsForm(FlaskForm):
             ('Завершён', 'Завершён')
         ],
         validators=[DataRequired()],
-        default="Открыт"
+        default='Открыт'
     )
     submit = SubmitField('Применить')
 
@@ -77,3 +77,19 @@ class ResponseForm(FlaskForm):
         }
     )
     submit = SubmitField('Отправить отклик')
+
+
+class ReviewsForm(FlaskForm):
+    comment = TextAreaField("Комментарий", validators=[
+        DataRequired(message="Комментарий обязателен"),
+        Length(max=512, message="Описание не должно превышать 512 символов")
+    ], render_kw={'rows': 5, 'placeholder': 'Ваш отзыв...'})
+
+    rating = IntegerField(
+        'Рейтинг',
+        validators=[DataRequired(message="Укажите рейтинг"),
+                    NumberRange(min=1, max=10, message='Рейтинг должен быть от 1 до 10')
+                    ], render_kw={'min': 1, 'max': 10, 'placeholder': '1-10'}
+    )
+
+    submit = SubmitField('Отправить')

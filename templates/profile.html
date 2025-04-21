@@ -16,6 +16,7 @@
             {% if current_user.role >= 2 or current_user.id == user.id %}
                 <p><strong>Почта:</strong> {{ user.email }}</p>
             {% endif %}
+            <p><strong>Средний рейтинг: </strong> {{ avg_rating }}</p>
             <p><strong>Дата регистрации:</strong> {{ user.created_date.strftime('%Y-%m-%d %H:%M') }}</p>
             <p><strong>Роль:</strong>
                 {% if user.role == 3 %}
@@ -58,8 +59,30 @@
     <!-- Заготовка для отзывов -->
     <div class="card mb-4">
         <div class="card-body">
-            <h3 class="card-title">Отзывы</h3>
-            <p class="text-muted">Отзывы пока недоступны. Функционал будет добавлен позже.</p>
+            <h3 class="card-title">Полученные отзывы</h3>
+            {% if received_reviews %}
+                <div class="row">
+                    {% for item in received_reviews %}
+                        <div class="col-12 col-md-6 mb-3">
+                            <div class="card job-card border-primary h-100">
+                                <div class="card-body">
+                                    {% if item.job.id %}
+                                    <h5 class="card-title"><a href="/jobs/{{ item.job_id }}" class="text-primary">{{ item.job.title }}</a></h5>
+                                    {% else %}
+                                    <p class="text-danger" style="font-size: 1.2rem"><strong>Работа была удалена</strong></p>
+                                    {% endif %}
+                                    <p><strong>Рейтинг:</strong> {{ item.rating }}/10</p>
+                                    <p><strong>Отзыв:</strong> {{ item.comment }}</p>
+                                    <p><strong>Оставил: </strong><a href="/profile/{{ item.author_id }}">{{ item.author.username }}</a></p>
+                                    <p><strong>Дата создания:</strong> {{ item.created_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">Нет полученных отзывов</p>
+            {% endif %}
         </div>
     </div>
 </div>

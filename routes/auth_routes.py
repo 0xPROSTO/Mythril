@@ -24,17 +24,20 @@ def register():
             return render_template('register.html', title='Регистрация', form=form,
                                    message="Пароли не совпадают")
         session = db_session.create_session()
-        if session.query(User).filter(User.email == form.email.data).first():
-            return render_template('register.html', title='Регистрация', form=form,
-                                   message="Такой пользователь уже есть")
-        user = User(
-            username=form.name.data,
-            email=form.email.data,
-        )
-        user.set_password(form.password.data)
-        session.add(user)
-        session.commit()
-        return redirect('/login')
+        try:
+            if session.query(User).filter(User.email == form.email.data).first():
+                return render_template('register.html', title='Регистрация', form=form,
+                                       message="Такой пользователь уже есть")
+            user = User(
+                username=form.name.data,
+                email=form.email.data,
+            )
+            user.set_password(form.password.data)
+            session.add(user)
+            session.commit()
+            return redirect('/login')
+        finally:
+            session.close()
     return render_template('register.html', title='Регистрация', form=form)
 
 

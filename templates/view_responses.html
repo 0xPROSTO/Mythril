@@ -22,9 +22,11 @@
                                         </form>
                                     {% elif job.executor_id == response.user_id %}
                                         <span class="badge bg-success">Выбран</span>
+                                        {% if job.status != "Завершён" %}
                                         <form action="/jobs/responses/cancel/{{ job.id }}/{{ response.id }}" method="post">
                                             <button href="" class="btn btn-warning btn-sm">Отменить исполнителя</button>
                                         </form>
+                                        {% endif %}
                                     {% endif %}
                                 </div>
                             </div>

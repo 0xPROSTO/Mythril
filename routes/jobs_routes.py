@@ -94,18 +94,20 @@ def add_jobs():
     can_edit_status = True if current_user.role > 1 else False
     if form.validate_on_submit():
         session = db_session.create_session()
-        jobs = Jobs()
-        jobs.title = form.title.data
-        jobs.description = form.description.data
-        jobs.category = form.category.data
-        jobs.price = form.price.data
-        jobs.contact = form.contact.data
-        jobs.author_id = current_user.id
-        jobs.status = form.status.data
-        session.add(jobs)
-        session.commit()
-        session.close()
-        return redirect('/')
+        try:
+            jobs = Jobs()
+            jobs.title = form.title.data
+            jobs.description = form.description.data
+            jobs.category = form.category.data
+            jobs.price = form.price.data
+            jobs.contact = form.contact.data
+            jobs.author_id = current_user.id
+            jobs.status = form.status.data
+            session.add(jobs)
+            session.commit()
+            return redirect('/')
+        finally:
+            session.close()
     return render_template('jobs.html', title='Добавление работы', form=form, can_edit_status=can_edit_status)
 
 
@@ -119,6 +121,9 @@ def jobs_delete(id):
             abort(404)
         if jobs.author_id != current_user.id and current_user.role < 2:
             flash('У вас нет прав для редактирования этого задания.', 'danger')
+            return redirect('/')
+        if jobs.status == "Завершён" and current_user.role < 3:
+            flash('Задание уже завершено.', 'danger')
             return redirect('/')
         else:
             session.delete(jobs)
@@ -145,7 +150,7 @@ def jobs_complete(job_id):
 @login_required
 def edit_jobs(id):
     form = JobsForm()
-    can_edit_status = True if current_user.role > 1 else False
+    can_edit_status = True if current_user.role >= 3 else False
     session = db_session.create_session()
     try:
         jobs = session.query(Jobs).filter(Jobs.id == id).first()
@@ -168,7 +173,8 @@ def edit_jobs(id):
             jobs.category = form.category.data
             jobs.price = form.price.data
             jobs.contact = form.contact.data
-            jobs.status = form.status.data
+            if can_edit_status:
+                jobs.status = form.status.data
             session.commit()
             session.close()
             return redirect('/')
@@ -186,9 +192,14 @@ def jobs_view(id):
         if not item:
             abort(404)
 
+        currency_data = get_currencies()
+        rates = currency_data["rates"]
+        other_prices = (f"{round(item.price * rates.get('USD', 1.0), 2)} $ | "
+                        f"{round(item.price * rates.get('EUR', 1.0), 2)} €")
+
         categories = load_categories()
         return render_template('view_jobs.html', title='Просмотр работы',
-                               item=item, categories=categories)
+                               item=item, categories=categories, other_prices=other_prices)
     finally:
         session.close()
 
