@@ -26,8 +26,15 @@
                 {% else %}
                 Пользователь
                 {% endif %}
+            {% if current_user.role >= 3 and current_user.id != user.id%}
+                <p>
+                <a href="/profile/{{ user.id }}/set_role/3" class="btn btn-info btn-sm mr-2">Назначить администратором</a>
+                <a href="/profile/{{ user.id }}/set_role/2" class="btn btn-primary btn-sm mr-2">Назначить модератором</a>
+                <a href="/profile/{{ user.id }}/set_role/1" class="btn btn-danger btn-sm mr-2">Снять роль</a>
+                </p>
+            {% endif %}
             </p>
-        </div>
+        </p>
     </div>
 
     <!-- Последние выполненные заказы -->

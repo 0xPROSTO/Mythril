@@ -1,7 +1,7 @@
 import json
 
-from flask import Flask, render_template, redirect, request, abort, session, url_for
-from flask_login import LoginManager, login_user, login_required
+from flask import Flask, render_template, redirect, request, abort, session, url_for, flash
+from flask_login import LoginManager, login_user, login_required, current_user
 
 from data import db_session
 from data.reviews import Reviews
@@ -74,6 +74,33 @@ def profile(user_id):
     finally:
         session.close()
 
+
+@app.route('/profile/<int:user_id>/set_role/<int:role>')
+@login_required
+def set_role(user_id, role):
+    session = db_session.create_session()
+    try:
+        user = session.query(User).get(user_id)
+        if not user:
+            abort(404, description="Пользователь не найден")
+
+        if role not in (1, 2, 3):
+            abort(404, description="Роли не существует")
+
+        if current_user.role < 3:
+            flash("У вас недостаточно прав", "warning")
+            return redirect(f"/profile/{user_id}")
+
+        if current_user.id == user_id:
+            flash("Вы не можете менять свою роль!", "warning")
+            return redirect(f"/profile/{user_id}")
+
+        user.role = role
+        session.commit()
+
+        return redirect(f"/profile/{user_id}")
+    finally:
+        session.close()
 
 @app.route('/settings/theme/toggle')
 def toggle_theme():
