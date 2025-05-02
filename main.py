@@ -9,6 +9,7 @@ from data.users import User
 from data.jobs import Jobs
 
 from routes.jobs_routes import jobs_blueprint
+from routes.mythril_API import api_blueprint
 from routes.responses_routes import responses_blueprint
 from routes.my_routes import my_blueprint
 from routes.auth_routes import auth_blueprint
@@ -29,6 +30,7 @@ app.register_blueprint(responses_blueprint)
 app.register_blueprint(my_blueprint)
 app.register_blueprint(auth_blueprint)
 app.register_blueprint(reviews_blueprint)
+app.register_blueprint(api_blueprint)
 
 
 def main():
@@ -110,6 +112,14 @@ def toggle_theme():
     else:
         session['theme'] = 'dark'
     return redirect(request.referrer or url_for('index'))
+
+@login_manager.user_loader
+def load_user(user_id):
+    session = db_session.create_session()
+    try:
+        return session.query(User).get(int(user_id))
+    finally:
+        session.close()
 
 
 if __name__ == '__main__':
