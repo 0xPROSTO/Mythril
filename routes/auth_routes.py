@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from flask import Blueprint, render_template, redirect
 from flask_login import login_user, login_required, logout_user
 
@@ -7,6 +9,7 @@ from data.users import User
 from forms.user_form import RegisterForm, LoginForm
 
 auth_blueprint = Blueprint('auth', __name__)
+REMEMBER_DURATION = timedelta(days=30)
 
 
 @auth_blueprint.route('/logout')
@@ -49,7 +52,7 @@ def login():
         try:
             user = session.query(User).filter(User.email == form.email.data).first()
             if user and user.check_password(form.password.data):
-                login_user(user, remember=form.remember_me.data)
+                login_user(user, remember=form.remember_me.data, duration=REMEMBER_DURATION)
                 return redirect("/")
             return render_template('login.html', message="Неправильный логин или пароль", form=form)
         finally:
