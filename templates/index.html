@@ -3,11 +3,31 @@
 {% block content %}
 <h1 class="mb-4">{{ title }}</h1>
 
-{% if current_user.is_authenticated %}
-    <a href="/jobs/add" class="btn btn-secondary mb-3">Добавить работу</a>
-    <a href="/my/jobs" class="btn btn-primary mb-3">Мои работы</a>
-    <a href="/my/responses" class="btn btn-info mb-3">Мои отклики</a>
-{% endif %}
+<div class="d-flex flex-wrap align-items-end justify-content-between mb-4">
+    <div class="d-flex flex-wrap">
+        {% if current_user.is_authenticated %}
+            <a href="/jobs/add" class="btn btn-secondary mr-2 mb-2">Добавить работу</a>
+            <a href="/my/jobs" class="btn btn-primary mr-2 mb-2">Мои работы</a>
+            <a href="/my/responses" class="btn btn-info mr-2 mb-2">Мои отклики</a>
+        {% endif %}
+    </div>
+
+    <!-- Форма поиска -->
+    <form method="get" class="d-flex align-items-end mb-2">
+        <div class="mr-2">
+            <label for="search" class="form-label sr-only">Поиск</label>
+            <input type="text" name="search" id="search" class="form-control" value="{{ search or '' }}"
+                   placeholder="{{ search_text }}" style="width: 400px">
+        </div>
+        <button type="submit" class="btn btn-primary mb-0">Поиск</button>
+        <!-- Скрытые поля для сохранения фильтров -->
+        <input type="hidden" name="category" value="{{ category or '' }}">
+        <input type="hidden" name="status" value="{{ status or '' }}">
+        <input type="hidden" name="min_price" value="{{ min_price or '' }}">
+        <input type="hidden" name="max_price" value="{{ max_price or '' }}">
+        <input type="hidden" name="currency" value="{{ currency or 'RUB' }}">
+    </form>
+</div>
 
 <!-- Форма фильтрации -->
 <form method="get" class="mb-4">
@@ -59,6 +79,11 @@
             </div>
         </div>
     </div>
+{#    <div class="col-md-3 px-1">#}
+{#        <label for="search" class="form-label">Поиск</label>#}
+{#        <input type="text" name="search" id="search" class="form-control" value="{{ search or '' }}" placeholder="Название, описание или автор">#}
+{#    </div>#}
+    <input type="hidden" name="search" value="{{ search or '' }}">
 </form>
 
 

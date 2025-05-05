@@ -4,6 +4,7 @@ from flask_login import login_required, current_user
 from data import db_session
 from data.jobs import Jobs
 from data.responses import Responses
+from data.users import User
 
 from sqlalchemy import func, or_
 from sqlalchemy.orm import joinedload
@@ -25,6 +26,7 @@ def my_jobs():
         min_price = request.args.get('min_price')
         max_price = request.args.get('max_price')
         currency = request.args.get('currency', 'RUB')
+        search = request.args.get('search')
 
         query = session.query(Jobs).filter(Jobs.author_id == current_user.id)
 
@@ -51,6 +53,15 @@ def my_jobs():
             except ValueError:
                 pass
 
+        # Поиск
+        if search:
+            search_term = f"%{search}%"
+            query = query.filter(
+                or_(
+                    Jobs.title.ilike(search_term),
+                    Jobs.description.ilike(search_term)
+                )
+            )
         jobs = query.all()
 
         # Подсчёт откликов
@@ -71,11 +82,13 @@ def my_jobs():
             job.currency = currency
 
         title = "Мои работы"
+        search_text = "Название или описание"
         categories = load_categories()
 
         return render_template("index.html", jobs=jobs, title=title,
                                categories=categories, category=category, status=status,
-                               min_price=min_price, max_price=max_price, currency=currency)
+                               min_price=min_price, max_price=max_price, currency=currency,
+                               search=search, search_text=search_text)
     finally:
         session.close()
 

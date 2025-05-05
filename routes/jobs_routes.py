@@ -5,10 +5,11 @@ from flask_login import login_required, current_user
 
 from data import db_session
 from data.jobs import Jobs
+from data.users import User
 from data.responses import Responses
 from forms.jobs_form import JobsForm, ResponseForm
 
-from sqlalchemy import func, case
+from sqlalchemy import func, case, or_
 from sqlalchemy.orm import joinedload
 
 from get_rates import get_currencies
@@ -40,12 +41,13 @@ def index():
         min_price = request.args.get('min_price')
         max_price = request.args.get('max_price')
         currency = request.args.get('currency', 'RUB')
+        search = request.args.get('search')
 
         # Получить курсы
         currency_data = get_currencies()
         rates = currency_data["rates"]
 
-        query = session.query(Jobs)
+        query = session.query(Jobs).join(User, Jobs.author_id == User.id)
         if category:
             query = query.filter(Jobs.category == category)
         if status:
@@ -65,6 +67,17 @@ def index():
             except ValueError:
                 pass
 
+        # Поиск
+        if search:
+            search_term = f"%{search}%"
+            query = query.filter(
+                or_(
+                    Jobs.title.ilike(search_term),
+                    Jobs.description.ilike(search_term),
+                    User.username.ilike(search_term)
+                )
+            )
+
         jobs = query.options(joinedload(Jobs.author)).order_by(status_order, Jobs.created_date).all()
 
         # Подсчёт откликов
@@ -78,11 +91,13 @@ def index():
             job.currency = currency
 
         title = "Доступные работы"
+        search_text = "Название, описание или автор"
         categories = load_categories()
 
         return render_template("index.html", jobs=jobs, title=title,
                                categories=categories, category=category, status=status,
-                               min_price=min_price, max_price=max_price, currency=currency)
+                               min_price=min_price, max_price=max_price, currency=currency,
+                               search=search, search_text=search_text)
     finally:
         session.close()
 
