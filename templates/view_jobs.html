@@ -2,15 +2,20 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="mb-4">{{ item.title }}</h1>
     <div class="row justify-content-center">
         <div class="col-12 col-lg-11">
             <div class="card border-primary shadow-sm h-100">
                 <div class="card-body p-4">
+                    <!-- Название -->
+                    <div class="mb-4">
+                        <h5 class="text-primary">Работа</h5>
+                        <p class="card-text">{{ item.title }}</p>
+                    </div>
+
                     <!-- Описание -->
                     <div class="mb-4">
                         <h5 class="text-primary">Описание</h5>
-                        <p class="card-text job-description">{{ item.description }}</p>
+                        <p class="card-text">{{ item.description }}</p>
                     </div>
 
                     <!-- Категория -->
@@ -54,24 +59,41 @@
                     </div>
 
                     <div class="d-flex gap-2">
-                        <!-- Кнопка отклика -->
-                        {% if current_user.is_authenticated and current_user == item.author %}
-                        <div class="mt-4">
-                            <a href="/jobs/responses/{{ item.id }}" class="btn btn-primary me-2 mr-2">Посмотреть отклики</a>
-                        </div>
-                        {% elif current_user.is_authenticated and item.status == "Открыт" %}
-                        <div class="mt-4">
-                            <a href="/jobs/answer/{{ item.id }}" class="btn btn-primary me-2 mr-2">Откликнуться</a>
-                        </div>
+                        {% if current_user == item.author or current_user.role >= 2 %}
+                            <div class="d-flex gap-2">
+                                {% if current_user == item.author %}
+                                    {% if item.status == "В работе"%}
+                                        <a href="/jobs/complete/{{ item.id }}" class="btn btn-success mr-2">Отметить завершённой</a>
+                                    {% elif item.status == "Завершён" and not item.reviews %}
+                                        <a href="/reviews/add/{{ item.id }}" class="btn btn-success mr-2">Оставить отзыв</a>
+                                    {% elif item.status == "Завершён" and item.reviews %}
+                                        <a href="/profile/{{ item.executor_id }}" class="btn btn-success mr-2">Посмотреть отзыв</a>
+                                    {% endif %}
+                                {% endif %}
+                                <a href="/jobs/{{ item.id }}" class="btn btn-outline-primary mr-2">Посмотреть</a>
+                                {% if item.status == "Открыт" and current_user.role >= 2 and current_user != item.author %}
+                                    <a href="/jobs/answer/{{ item.id }}" class="btn btn-outline-info mr-2">Откликнуться</a>
+                                {% endif %}
+                                <a href="/jobs/responses/{{ item.id }}" class="btn btn-outline-info mr-2">Посмотреть отклики</a>
+                                {% if item.status != "Завершён" or current_user.role >= 3 %}
+                                <a href="/jobs/edit/{{ item.id }}" class="btn btn-outline-warning mr-2">Изменить</a>
+                                <a href="/jobs/delete/{{ item.id }}" class="btn btn-outline-danger mr-2">Удалить</a>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <div class="d-flex gap-2">
+                                <a href="/jobs/{{ item.id }}" class="btn btn-outline-primary mr-2">Посмотреть</a>
+                                {% if item.status == "Открыт" %}
+                                    <a href="/jobs/answer/{{ item.id }}" class="btn btn-outline-info mr-2">Откликнуться</a>
+                                {% endif %}
+                            </div>
                         {% endif %}
 
                         <!-- Кнопка возврата -->
-                        <div class="mt-4">
-                            <a href="/" class="btn btn-secondary">Назад к списку</a>
+                        <div class="">
+                            <a href="/" class="btn btn-secondary mr-2">Назад к списку</a>
                         </div>
                     </div>
-
-
                 </div>
             </div>
         </div>

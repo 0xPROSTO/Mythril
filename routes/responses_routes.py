@@ -21,7 +21,8 @@ def view_responses(job_id):
             return redirect(f'/jobs/{job_id}')
 
         responses = session.query(Responses).filter(Responses.job_id == job_id).all()
-        return render_template('view_responses.html', job=job, responses=responses)
+        return render_template('view_responses.html', title=f"Отклики на работу",
+                               job=job, responses=responses)
     finally:
         session.close()
 

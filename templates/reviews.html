@@ -1,29 +1,39 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>{{ title }}</h1>
-    <form action="" method="post" novalidate>
-        {{ form.hidden_tag() }}
-        <div class="form-group">
-            {{ form.comment.label }}<br>
-            {{ form.comment(class="form-control") }}<br>
-            {% for error in form.comment.errors %}
-                <p class="alert alert-danger" role="alert">
-                    {{ error }}
-                </p>
-            {% endfor %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-11">
+            <div class="card border-primary shadow-sm h-100">
+                <div class="card-body p-4">
+                    <form action="" method="post" novalidate>
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            <label for="comment" class="form-label text-primary">{{ form.comment.label.text }}</label>
+                            {{ form.comment(class="form-control", id="comment") }}
+                            {% for error in form.comment.errors %}
+                                <div class="alert alert-danger mt-2" role="alert">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="rating" class="form-label text-primary">{{ form.rating.label.text }}</label>
+                            {{ form.rating(class="form-control", id="rating") }}
+                            {% for error in form.rating.errors %}
+                                <div class="alert alert-danger mt-2" role="alert">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="mt-4">
+                            {{ form.submit(class="btn btn-primary") }}
+                            {% if job %}
+                                <a href="/jobs/{{ job.id }}" class="btn btn-secondary ms-2">Назад</a>
+                            {% else %}
+                                <a href="/" class="btn btn-secondary ms-2">Назад</a>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div>
-        {{ form.rating.label }}<br>
-        {{ form.rating() }}
-        {% for error in form.rating.errors %}
-               <p class="alert alert-danger" role="alert">
-                    {{ error }}
-                </p>
-        {% endfor %}
-        </div>
-        <div class="form-group">
-            {{ form.submit(type="submit", class="btn btn-primary") }}
-        </div>
-    </form>
+    </div>
+</div>
 {% endblock %}

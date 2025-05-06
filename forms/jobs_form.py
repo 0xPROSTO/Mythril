@@ -18,11 +18,11 @@ def load_categories(file_path='./data/categories.json'):
 
 class JobsForm(FlaskForm):
     title = StringField('Название работы', validators=[DataRequired(),
-                                                       Length(max=100,
-                                                              message="Название не должно превышать 100 символов")])
+                                                       Length(max=128,
+                                                              message="Название не должно превышать 128 символов")])
     description = TextAreaField("Описание работы", validators=[DataRequired(),
-                                                               Length(max=2000,
-                                                                      message="Описание не должно превышать 2000 символов")])
+                                                               Length(max=2048,
+                                                                      message="Описание не должно превышать 2048 символов")])
     categories = load_categories()
     category = SelectField(
         'Категория',
@@ -42,7 +42,7 @@ class JobsForm(FlaskForm):
         }
     )
     contact = StringField("Как с вами связаться",
-                          validators=[DataRequired(), Length(max=255, message="Контактная информация слишком длинная")])
+                          validators=[DataRequired(), Length(max=256, message="Контактная информация слишком длинная")])
     status = SelectField(
         label="Статус",
         choices=[

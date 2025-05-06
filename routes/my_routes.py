@@ -110,8 +110,8 @@ def my_responses():
                 Jobs.id.is_(None)
             )
         ).order_by(Responses.created_date.desc()).all()
-        return render_template("my_responses.html", responses=responses,
-                               responses_history=responses_history)
+        return render_template("my_responses.html", title="Мои отклики",
+                               responses=responses, responses_history=responses_history)
     finally:
         session.close()
 

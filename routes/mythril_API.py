@@ -20,7 +20,10 @@ def validate_price(value, name):
     if value is None:
         raise ValueError(f"{name} is required")
     try:
-        # Преобразуем в строку для проверки десятичных знаков
+        if value < 0:
+            raise ValueError(f"{name} cannot be negative")
+        if value > 1_000_000_000_000:
+            raise ValueError(f"{name} cannot exceed 1 trillion")
         value_str = f"{float(value):.10f}".rstrip('0')
         decimal_part = value_str[value_str.find('.') + 1:] if '.' in value_str else ''
         if len(decimal_part) > 2:
@@ -28,6 +31,16 @@ def validate_price(value, name):
         return float(value)
     except (ValueError, TypeError):
         raise ValueError(f"{name} must be a valid number with no more than 2 decimal places")
+
+
+def validate_length(max_length):
+    def validate(value, name):
+        if value is None:
+            raise ValueError(f"{name} is required")
+        if len(value) > max_length:
+            raise ValueError(f"{name} must not exceed {max_length} characters")
+        return value
+    return validate
 
 
 CATEGORIES = load_categories()
@@ -38,20 +51,20 @@ api_blueprint = Blueprint('api', __name__, url_prefix='/api')
 api = Api(api_blueprint)
 
 login_parser = reqparse.RequestParser()
-login_parser.add_argument('email', type=str, required=True, help='Email is required')
-login_parser.add_argument('password', type=str, required=True, help='Password is required')
+login_parser.add_argument('email', type=validate_length(255), required=True, help='Email is required')
+login_parser.add_argument('password', type=validate_length(128), required=True, help='Password is required')
 
 job_parser = reqparse.RequestParser()
-job_parser.add_argument('title', type=str, required=True, help='Title is required')
-job_parser.add_argument('description', type=str, required=True, help='Description is required')
+job_parser.add_argument('title', type=validate_length(128), required=True, help='Title is required')
+job_parser.add_argument('description', type=validate_length(2048), required=True, help='Description is required')
 job_parser.add_argument('category', type=str, choices=CATEGORY_VALUES, required=True, help=CATEGORY_HELP_MESSAGE)
 job_parser.add_argument('price', type=validate_price, required=True,
                         help='Price must be a valid number with no more than 2 decimal places')
-job_parser.add_argument('contact', type=str, required=True, help='Contact is required')
+job_parser.add_argument('contact', type=validate_length(256), required=True, help='Contact is required')
 job_parser.add_argument('status', type=str, choices=('Открыт', 'В работе', 'Завершён'), default='Открыт')
 
 response_parser = reqparse.RequestParser()
-response_parser.add_argument('comment', type=str, required=True, help='Comment is required')
+response_parser.add_argument('comment', type=validate_length(512), required=True, help='Comment is required')
 response_parser.add_argument('price', type=validate_price, required=True,
                              help='Price must be a valid number with no more than 2 decimal places')
 

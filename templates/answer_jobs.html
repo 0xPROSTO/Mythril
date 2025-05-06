@@ -2,15 +2,18 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="mb-4">Отклик на работу: {{ job.title }}</h1>
     <div class="row justify-content-center">
         <div class="col-12 col-lg-11">
             <div class="card border-primary shadow-sm h-100">
                 <div class="card-body p-4">
                     <!-- Краткая информация о работе -->
                     <div class="mb-4">
+                        <h5 class="text-primary">Работа</h5>
+                        <p class="card-text">{{ job.title }}</p>
+                    </div>
+                    <div class="mb-4">
                         <h5 class="text-primary">Описание</h5>
-                        <p class="card-text job-description">{{ job.description }}</p>
+                        <p class="card-text">{{ job.description }}</p>
                     </div>
                     <div class="mb-4">
                         <h5 class="text-primary">Рекомендованная цена</h5>

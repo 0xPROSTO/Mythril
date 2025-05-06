@@ -22,14 +22,15 @@ def logout():
 @auth_blueprint.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
+    title = "Добро пожаловать в Mythril"
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
-            return render_template('register.html', title='Регистрация', form=form,
+            return render_template('register.html', title=title, form=form,
                                    message="Пароли не совпадают")
         session = db_session.create_session()
         try:
             if session.query(User).filter(User.email == form.email.data).first():
-                return render_template('register.html', title='Регистрация', form=form,
+                return render_template('register.html', title=title, form=form,
                                        message="Такой пользователь уже есть")
             user = User(
                 username=form.name.data,
@@ -41,7 +42,7 @@ def register():
             return redirect('/login')
         finally:
             session.close()
-    return render_template('register.html', title='Регистрация', form=form)
+    return render_template('register.html', title=title, form=form)
 
 
 @auth_blueprint.route('/login', methods=['GET', 'POST'])

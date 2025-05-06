@@ -213,7 +213,7 @@ def jobs_view(id):
                         f"{round(item.price * rates.get('EUR', 1.0), 2)} €")
 
         categories = load_categories()
-        return render_template('view_jobs.html', title='Просмотр работы',
+        return render_template('view_jobs.html', title=f'Просмотр работы',
                                item=item, categories=categories, other_prices=other_prices)
     finally:
         session.close()
@@ -239,6 +239,7 @@ def answer_jobs(job_id):
 
         form = ResponseForm(price=job.price)
         categories = load_categories()
+        title='Отклик на работу'
 
         if form.validate_on_submit():
             response = Responses(
@@ -253,6 +254,7 @@ def answer_jobs(job_id):
             flash('Ваш отклик успешно отправлен!', 'success')
             return redirect(f'/jobs/{job_id}')
 
-        return render_template('answer_jobs.html', job=job, form=form, categories=categories)
+        return render_template('answer_jobs.html', job=job, form=form,
+                               categories=categories, title=title)
     finally:
         session.close()

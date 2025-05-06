@@ -14,10 +14,11 @@
           href="{{ url_for('static', filename='css/darktheme.css') }}">
     <title>{{ title }}</title>
 </head>
+
 <body class="{{ 'dark-theme' if session.get('theme') == 'dark' else '' }}">
 <header>
     <nav class="navbar navbar-light bg-light py-2">
-        <div class="container-fluid">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
             <!-- Логотип и название -->
             <div class="d-flex align-items-center">
                 <a href="/">
@@ -27,10 +28,17 @@
                 <a class="navbar-brand ml-2 mythril-color" href="/" style="font-size: 1.75rem;">Mythril</a>
             </div>
 
+            <!-- Заголовок страницы -->
+            <h1 class="navbar-title mb-0 text-primary" style="font-size: 1.65rem; flex-grow: 1; text-align: center;">
+                {{ title }}
+            </h1>
+
             <!-- Пользовательские ссылки -->
             <div class="d-flex align-items-center">
                 {% if current_user.is_authenticated %}
-                    <a class="nav-link mr-3" href="/profile/{{ current_user.id }}" style="font-size: 1.5rem;">{{ current_user.username }}</a>
+                    <a class="nav-link mr-3" href="/profile/{{ current_user.id }}" style="font-size: 1.5rem;">
+                        {{ current_user.username[:16] }}{% if current_user.username|length > 16 %}...{% endif %}
+                    </a>
                     <a class="nav-link btn btn-outline-secondary btn-sm mr-3" href="/settings/theme/toggle">Тема</a>
                     <a class="nav-link btn btn-outline-danger btn-sm mr-3" href="/logout">Выйти</a>
                 {% else %}
@@ -43,7 +51,7 @@
     </nav>
 </header>
 <!-- Begin page content -->
-<main role="main" class="container">
+<main role="main" class="container mt-4">
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}

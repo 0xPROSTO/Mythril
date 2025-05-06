@@ -2,11 +2,6 @@
 
 {% block content %}
 <div class="container mt-4">
-    {% if current_user.id == user.id %}
-        <h1 class="mb-4">Ваш профиль: {{ user.username }}</h1>
-    {% else %}
-        <h1 class="mb-4">Профиль пользователя: {{ user.username }}</h1>
-    {% endif %}
 
     <!-- Информация о пользователе -->
     <div class="card mb-4">
@@ -46,8 +41,8 @@
                         <div class="col-12 col-md-6 mb-3">
                             <div class="card job-card border-primary h-100">
                                 <div class="card-body">
-                                    <h5 class="card-title"><a href="/jobs/{{ job.id }}" class="text-primary">{{ job.title }}</a></h5>
-                                    <p class="card-text">{{ job.description }}</p>
+                                    <h5 class="card-title job-title"><a href="/jobs/{{ job.id }}" class="text-primary">{{ job.title }}</a></h5>
+                                    <p class="card-text job-description">{{ job.description }}</p>
                                     <p><strong>Цена:</strong> {{ job.price }} ₽</p>
                                     <p><strong>Дата создания:</strong> {{ job.created_date.strftime('%Y-%m-%d %H:%M') }}</p>
                                     <p><strong>Автор:</strong> {{ job.author.username }}</p>

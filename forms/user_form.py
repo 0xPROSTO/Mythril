@@ -8,7 +8,7 @@ class RegisterForm(FlaskForm):
     name = StringField('Имя пользователя',
                        validators=[DataRequired(),
                                    Length(1, 32, message="Имя должно быть от 1 до 32 символов")])
-    email = EmailField('Почта', validators=[DataRequired(), Length(max=255, message="Почта слишком длинная")])
+    email = EmailField('Почта', validators=[DataRequired(), Length(max=256, message="Почта слишком длинная")])
     password = PasswordField('Пароль', validators=[DataRequired(),
                                                    Length(min=6, max=128,
                                                           message="Пароль должен быть от 6 до 128 символов")])
@@ -17,7 +17,7 @@ class RegisterForm(FlaskForm):
 
 
 class LoginForm(FlaskForm):
-    email = EmailField('Почта', validators=[DataRequired(), Length(max=255, message="Почта слишком длинная")])
+    email = EmailField('Почта', validators=[DataRequired(), Length(max=256, message="Почта слишком длинная")])
     password = PasswordField('Пароль', validators=[DataRequired(), Length(max=128, message="Пароль слишком длинный")])
     remember_me = BooleanField('Запомнить меня')
     submit = SubmitField('Войти')

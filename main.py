@@ -71,8 +71,12 @@ def profile(user_id):
         avg_rating = session.query(func.avg(Reviews.rating)).filter(Reviews.executor_id == user.id).scalar()
         avg_rating = round(avg_rating, 2) if avg_rating else "N/A"
 
+        title = f"Ваш профиль" if current_user.id == user.id else \
+            f"Профиль пользователя: {user.username[:16] + '...' if len(user.username) > 16 else user.username}"
+
         return render_template('profile.html', user=user,
-                               completed_jobs=completed_jobs, received_reviews=received_reviews, avg_rating=avg_rating)
+                               completed_jobs=completed_jobs, received_reviews=received_reviews,
+                               avg_rating=avg_rating, title=title)
     finally:
         session.close()
 
@@ -104,6 +108,7 @@ def set_role(user_id, role):
     finally:
         session.close()
 
+
 @app.route('/settings/theme/toggle')
 def toggle_theme():
     # Переключаем тему в сессии
@@ -112,6 +117,7 @@ def toggle_theme():
     else:
         session['theme'] = 'dark'
     return redirect(request.referrer or url_for('index'))
+
 
 @login_manager.user_loader
 def load_user(user_id):

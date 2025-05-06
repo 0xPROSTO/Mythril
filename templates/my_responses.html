@@ -2,7 +2,6 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="mb-4">Мои отклики</h1>
     <div class="row justify-content-center">
         <div class="col-12 col-lg-11">
             <div class="card border-primary shadow-sm h-100">
@@ -35,7 +34,7 @@
                             </div>
                         {% endfor %}
                     {% else %}
-                        <p class="text-muted">У вас пока нет откликов(</p>
+                        <p class="text-muted">У вас пока нет активных откликов(</p>
                     {% endif %}
 
                     {% if responses_history %}
