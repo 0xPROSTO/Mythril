@@ -12,6 +12,7 @@ reviews_blueprint = Blueprint('reviews', __name__)
 @reviews_blueprint.route('/reviews/add/<int:job_id>', methods=['GET', 'POST'])
 @login_required
 def add_reviews(job_id):
+    """Позволяет автору работы оставить отзыв о завершенной работе."""
     session = db_session.create_session()
     try:
         job = session.query(Jobs).get(job_id)

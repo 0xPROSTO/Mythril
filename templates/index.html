@@ -92,7 +92,7 @@
             <div class="card job-card border-primary h-100 position-relative p-0">
                 <div class="card-body d-flex flex-column justify-content-between p-4">
                     {% if current_user.is_authenticated %}
-                        <a href="{{ url_for('jobs.jobs_view', id=item.id) }}" class="text-decoration-none">
+                        <a href="{{ url_for('jobs.jobs_view', job_id=item.id) }}" class="text-decoration-none">
                             <!-- Заголовок -->
                             <h2 class="card-title job-title text-primary mb-2" style="margin-top: -10px;">{{ item.title }}</h2>
                             <!-- Описание -->

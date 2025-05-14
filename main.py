@@ -34,6 +34,7 @@ app.register_blueprint(api_blueprint)
 
 
 def main():
+    """Инициализирует базу данных и запускает Mythril на порту 8080."""
     db_session.global_init("database/database.db")
     # session = db_session.create_session()
 
@@ -42,6 +43,7 @@ def main():
 
 @login_manager.user_loader
 def load_user(user_id):
+    """Загружает пользователя"""
     session = db_session.create_session()
     try:
         user = session.get(User, int(user_id))
@@ -53,6 +55,7 @@ def load_user(user_id):
 @app.route('/profile/<int:user_id>')
 @login_required
 def profile(user_id):
+    """Отображает профиль пользователя с его работами и отзывами."""
     session = db_session.create_session()
     try:
         user = session.query(User).get(user_id)
@@ -77,6 +80,8 @@ def profile(user_id):
         return render_template('profile.html', user=user,
                                completed_jobs=completed_jobs, received_reviews=received_reviews,
                                avg_rating=avg_rating, title=title)
+    except Exception as e:
+        abort(500, description=f"Ошибка сервера: {str(e)}")
     finally:
         session.close()
 
@@ -84,6 +89,7 @@ def profile(user_id):
 @app.route('/profile/<int:user_id>/set_role/<int:role>')
 @login_required
 def set_role(user_id, role):
+    """Изменяет роль пользователя, если текущий пользователь имеет права."""
     session = db_session.create_session()
     try:
         user = session.query(User).get(user_id)
@@ -101,6 +107,10 @@ def set_role(user_id, role):
             flash("Вы не можете менять свою роль!", "warning")
             return redirect(f"/profile/{user_id}")
 
+        if role > current_user.role:
+            flash("Вы не можете назначить роль выше своей!", "warning")
+            return redirect(f"/profile/{user_id}")
+
         user.role = role
         session.commit()
 
@@ -111,21 +121,12 @@ def set_role(user_id, role):
 
 @app.route('/settings/theme/toggle')
 def toggle_theme():
-    # Переключаем тему в сессии
+    """Переключает тему интерфейса между светлой и темной."""
     if session.get('theme') == 'dark':
         session['theme'] = 'light'
     else:
         session['theme'] = 'dark'
     return redirect(request.referrer or url_for('index'))
-
-
-@login_manager.user_loader
-def load_user(user_id):
-    session = db_session.create_session()
-    try:
-        return session.query(User).get(int(user_id))
-    finally:
-        session.close()
 
 
 if __name__ == '__main__':

@@ -40,6 +40,7 @@ def validate_length(max_length):
         if len(value) > max_length:
             raise ValueError(f"{name} must not exceed {max_length} characters")
         return value
+
     return validate
 
 
@@ -70,6 +71,8 @@ response_parser.add_argument('price', type=validate_price, required=True,
 
 
 def login_required(method):
+    """Декоратор для проверки авторизации пользователя в API."""
+
     def wrapper(*args, **kwargs):
         if 'user_id' not in flask_session:
             return {'error': 'Unauthorized'}, 401
@@ -102,6 +105,7 @@ def abort_if_user_not_found(user_id):
 
 class LoginResource(Resource):
     def post(self):
+        """Обрабатывает вход пользователя через API."""
         args = login_parser.parse_args()
         db_sess = db_session.create_session()
         try:
@@ -117,6 +121,7 @@ class LoginResource(Resource):
 
 class LogoutResource(Resource):
     def post(self):
+        """Обрабатывает выход пользователя из системы через API."""
         flask_session.pop('user_id', None)
         flask_session.pop('role', None)
         return {'success': 'Logged out'}, 200
@@ -124,6 +129,7 @@ class LogoutResource(Resource):
 
 class JobsListResource(Resource):
     def get(self):
+        """Возвращает список всех работ."""
         session = db_session.create_session()
         try:
             jobs = session.query(Jobs).all()
@@ -139,6 +145,7 @@ class JobsListResource(Resource):
 
     @login_required
     def post(self):
+        """Создает новую работу через API."""
         args = job_parser.parse_args()
         session = db_session.create_session()
         try:
@@ -161,6 +168,7 @@ class JobsListResource(Resource):
 
 class JobResource(Resource):
     def get(self, job_id):
+        """Возвращает информацию о конкретной работе."""
         abort_if_job_not_found(job_id)
         session = db_session.create_session()
         try:
@@ -174,6 +182,7 @@ class JobResource(Resource):
 
     @login_required
     def put(self, job_id):
+        """Обновляет информацию о работе через API."""
         abort_if_job_not_found(job_id)
         db_sess = db_session.create_session()
         try:
@@ -197,6 +206,7 @@ class JobResource(Resource):
 
     @login_required
     def delete(self, job_id):
+        """Удаляет работу через API."""
         abort_if_job_not_found(job_id)
         db_sess = db_session.create_session()
         try:
@@ -213,6 +223,7 @@ class JobResource(Resource):
 class JobResponsesResource(Resource):
     @login_required
     def get(self, job_id):
+        """Возвращает список откликов на работу."""
         abort_if_job_not_found(job_id)
         db_sess = db_session.create_session()
         try:
@@ -231,6 +242,7 @@ class JobResponsesResource(Resource):
 
     @login_required
     def post(self, job_id):
+        """Создает новый отклик на работу через API."""
         abort_if_job_not_found(job_id)
         db_sess = db_session.create_session()
         try:
@@ -261,6 +273,7 @@ class JobResponsesResource(Resource):
 
     @login_required
     def patch(self, job_id, response_id):
+        """Выбирает исполнителя для работы на основе отклика."""
         abort_if_job_not_found(job_id)
         db_sess = db_session.create_session()
         try:
@@ -284,6 +297,8 @@ class JobResponsesResource(Resource):
 
 
 class UserResource(Resource):
+    """Возвращает информацию о пользователе, его работах и отзывах."""
+
     @login_required
     def get(self, user_id):
         abort_if_user_not_found(user_id)

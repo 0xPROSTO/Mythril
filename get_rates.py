@@ -24,7 +24,9 @@ handler = logging.FileHandler('logs/currency.log', 'a', 'utf-8')
 handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
 rates_logger.addHandler(handler)
 
+
 def get_currencies():
+    """Получает актуальные курсы валют или возвращает кэшированные данные."""
     current_data = {
         "date": "1970-01-01",
         "rates": {"RUB": 1.0, "USD": 1.0, "EUR": 1.0},

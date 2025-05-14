@@ -14,7 +14,7 @@ GET /api/jobs Получить список всех заданий
 POST /api/jobs Создать новое задание (нужен вход) Пример запроса: {
     "title": "Нужен сайт", 
     "description": "Сделать лендинг", 
-    "category": "web", 
+    "category": "web_development", 
     "price": 10000, 
     "contact": "@telegram", 
     "status": "Открыт"

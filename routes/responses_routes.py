@@ -11,6 +11,7 @@ responses_blueprint = Blueprint('responses', __name__)
 @responses_blueprint.route('/jobs/responses/<int:job_id>')
 @login_required
 def view_responses(job_id):
+    """Отображает список откликов на указанную работу."""
     session = db_session.create_session()
     try:
         job = session.query(Jobs).get(job_id)
@@ -30,13 +31,17 @@ def view_responses(job_id):
 @responses_blueprint.route('/jobs/responses/select/<int:job_id>/<int:response_id>', methods=['POST'])
 @login_required
 def select_response(job_id, response_id):
+    """Выбирает исполнителя для работы на основе отклика."""
     session = db_session.create_session()
     try:
         job = session.query(Jobs).get(job_id)
         response = session.query(Responses).get(response_id)
 
-        if not job or not response:
+        if not job:
             abort(404)
+        if not response:
+            flash("Отклик вероятно был удалён(", 'danger')
+            return redirect(f'/jobs/responses/{job_id}')
         if job.author_id != current_user.id:
             flash('Вы не можете выбрать исполнителя для этой работы.', 'danger')
             return redirect(f'/jobs/responses/{job_id}')
@@ -51,6 +56,10 @@ def select_response(job_id, response_id):
         job.status = "В работе"
         session.commit()
         return redirect(f'/jobs/responses/{job_id}')
+    except Exception as e:
+        session.rollback()
+        flash(f"Ошибка при выборе исполнителя: {str(e)}", "danger")
+        return redirect(f"/jobs/responses/{job_id}")
     finally:
         session.close()
 
@@ -58,6 +67,7 @@ def select_response(job_id, response_id):
 @responses_blueprint.route('/jobs/responses/cancel/<int:job_id>/<int:response_id>', methods=['POST'])
 @login_required
 def cancel_response(job_id, response_id):
+    """Отменяет выбор исполнителя для работы."""
     session = db_session.create_session()
     try:
         job = session.query(Jobs).get(job_id)

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, abort, request
+from flask import Blueprint, render_template, redirect, abort, request, flash
 from flask_login import login_required, current_user
 
 from data import db_session
@@ -19,6 +19,7 @@ my_blueprint = Blueprint('my', __name__)
 @my_blueprint.route('/my/jobs')
 @login_required
 def my_jobs():
+    """Отображает список работ, созданных текущим пользователем."""
     session = db_session.create_session()
     try:
         category = request.args.get('category')
@@ -96,6 +97,7 @@ def my_jobs():
 @my_blueprint.route('/my/responses')
 @login_required
 def my_responses():
+    """Отображает отклики текущего пользователя."""
     session = db_session.create_session()
     try:
         responses = (session.query(Responses).filter(
@@ -119,21 +121,28 @@ def my_responses():
 @my_blueprint.route('/my/responses/delete/<int:id>', methods=['GET', 'POST'])
 @login_required
 def responses_delete(id):
+    """Удаляет отклик текущего пользователя."""
     session = db_session.create_session()
     try:
         response = session.query(Responses).filter(Responses.id == id, Responses.user_id == current_user.id).first()
-        if response:
-            if response.job:
-                if response.job.executor_id == current_user.id:
-                    response.job.status = "Открыт"
-                    response.job.executor_id = None
-                session.delete(response)
-                session.commit()
-            else:
-                session.delete(response)
-                session.commit()
-        else:
-            abort(404)
+        if not response:
+            abort(404, description="Отклик не найден")
+
+        if response.job and response.job.status == "Завершён":
+            flash("Нельзя удалить отклик для завершённой работы", "danger")
+            return redirect('/my/responses')
+
+        if response.job and response.job.executor_id == current_user.id:
+            response.job.status = "Открыт"
+            response.job.executor_id = None
+
+        session.delete(response)
+        session.commit()
+        flash("Отклик успешно удалён", "success")
+        return redirect('/my/responses')
+    except Exception as e:
+        session.rollback()
+        flash(f"Ошибка при удалении отклика: {str(e)}", "danger")
         return redirect('/my/responses')
     finally:
         session.close()

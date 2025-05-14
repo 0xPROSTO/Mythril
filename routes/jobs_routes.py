@@ -25,6 +25,7 @@ def load_categories(file_path='data/categories.json'):
 
 @jobs_blueprint.route("/")
 def index():
+    """Отображает список всех доступных работ с фильтрацией."""
     session = db_session.create_session()
     try:
         status_order = case(
@@ -105,6 +106,7 @@ def index():
 @jobs_blueprint.route('/jobs/add', methods=['GET', 'POST'])
 @login_required
 def add_jobs():
+    """Добавляет новую работу в базу данных."""
     form = JobsForm()
     can_edit_status = True if current_user.role > 1 else False
     if form.validate_on_submit():
@@ -126,12 +128,13 @@ def add_jobs():
     return render_template('jobs.html', title='Добавление работы', form=form, can_edit_status=can_edit_status)
 
 
-@jobs_blueprint.route('/jobs/delete/<int:id>', methods=['GET', 'POST'])
+@jobs_blueprint.route('/jobs/delete/<int:job_id>', methods=['GET', 'POST'])
 @login_required
-def jobs_delete(id):
+def jobs_delete(job_id):
+    """Удаляет работу, если пользователь имеет права."""
     session = db_session.create_session()
     try:
-        jobs = session.query(Jobs).filter(Jobs.id == id).first()
+        jobs = session.query(Jobs).filter(Jobs.id == job_id).first()
         if not jobs:
             abort(404)
         if jobs.author_id != current_user.id and current_user.role < 2:
@@ -151,6 +154,7 @@ def jobs_delete(id):
 @jobs_blueprint.route('/jobs/complete/<int:job_id>', methods=['GET', 'POST'])
 @login_required
 def jobs_complete(job_id):
+    """Отмечает работу как завершенную."""
     session = db_session.create_session()
     try:
         job = session.query(Jobs).filter(Jobs.id == job_id).first()
@@ -161,14 +165,15 @@ def jobs_complete(job_id):
         session.close()
 
 
-@jobs_blueprint.route('/jobs/edit/<int:id>', methods=['GET', 'POST'])
+@jobs_blueprint.route('/jobs/edit/<int:job_id>', methods=['GET', 'POST'])
 @login_required
-def edit_jobs(id):
+def edit_jobs(job_id):
+    """Редактирует существующую работу, если пользователь имеет права."""
     form = JobsForm()
     can_edit_status = True if current_user.role >= 3 else False
     session = db_session.create_session()
     try:
-        jobs = session.query(Jobs).filter(Jobs.id == id).first()
+        jobs = session.query(Jobs).filter(Jobs.id == job_id).first()
         if not jobs:
             abort(404)
         if jobs.author_id != current_user.id and current_user.role < 2:
@@ -198,12 +203,13 @@ def edit_jobs(id):
         session.close()
 
 
-@jobs_blueprint.route('/jobs/<int:id>', methods=['GET', 'POST'])
+@jobs_blueprint.route('/jobs/<int:job_id>', methods=['GET', 'POST'])
 @login_required
-def jobs_view(id):
+def jobs_view(job_id):
+    """Отображает подробную информацию о конкретной работе."""
     session = db_session.create_session()
     try:
-        item = session.query(Jobs).filter(Jobs.id == id).first()
+        item = session.query(Jobs).filter(Jobs.id == job_id).first()
         if not item:
             abort(404)
 
@@ -222,6 +228,7 @@ def jobs_view(id):
 @jobs_blueprint.route('/jobs/answer/<int:job_id>', methods=['GET', 'POST'])
 @login_required
 def answer_jobs(job_id):
+    """Позволяет пользователю отправить отклик на работу."""
     session = db_session.create_session()
     try:
         job = session.query(Jobs).get(job_id)
@@ -239,7 +246,7 @@ def answer_jobs(job_id):
 
         form = ResponseForm(price=job.price)
         categories = load_categories()
-        title='Отклик на работу'
+        title = 'Отклик на работу'
 
         if form.validate_on_submit():
             response = Responses(
